@@ -41,7 +41,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ setSymbol }) => {
         placeholder="Symbol (e.g., TSLA)"
         value={inputValue}
         onChange={handleChange}
-        className="hover:border-blue-500 max-w-[180px]"
+        className="hover:border-blue-500 max-w-[180px] ml-auto"
       />
       {suggestions.length > 0 && (
         <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">

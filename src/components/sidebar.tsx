@@ -2,13 +2,10 @@
 
 import { FC } from "react";
 import { ALGORITHMS_LINKS, OTHER_LINKS } from "@/configs/navigation";
-import { usePathname } from "next/navigation";
 
 interface SidebarProps {}
 
 const Sidebar: FC<SidebarProps> = ({}) => {
-  const pathname = usePathname();
-
   return (
     <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 md:sticky md:block">
       <div className="relative overflow-hidden h-full py-6 pl-8 pr-6 lg:py-8">
@@ -20,7 +17,10 @@ const Sidebar: FC<SidebarProps> = ({}) => {
             <div className="w-full">
               <div>
                 {[
-                  { header: "Algorithms", items: ALGORITHMS_LINKS },
+                  {
+                    header: "Apply Algorithms on a Stock",
+                    items: ALGORITHMS_LINKS,
+                  },
                   { header: "Others", items: OTHER_LINKS },
                 ].map((section) => (
                   <div className="pb-4" key={section.header}>

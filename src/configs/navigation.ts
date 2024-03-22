@@ -13,7 +13,7 @@ export const ALGORITHMS_LINKS = [
   },
   {
     title: "%K Stochastic Oscillator",
-    href: "kstochastic",
+    href: "k-stochastic",
   },
   {
     title: "MACD Signal",
@@ -21,7 +21,7 @@ export const ALGORITHMS_LINKS = [
   },
   {
     title: "3-day %K Stochastic Oscillator",
-    href: "/3day-stochastic",
+    href: "/3day-k-stochastic",
   },
   {
     title: "ACD System",
