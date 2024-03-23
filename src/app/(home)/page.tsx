@@ -19,7 +19,7 @@ export default function HomePage() {
   const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     await fetchStockData(symbol, period1, period2);
-    setCurName(Tickers_dict[symbol]);
+    setCurName(Tickers_dict[symbol] || symbol);
   };
 
   return (
@@ -46,9 +46,7 @@ export default function HomePage() {
       </div>
 
       <div className="w-full">
-        {historicalData && (
-          <DataTable columns={columns} data={historicalData} />
-        )}
+        <DataTable columns={columns} data={historicalData} />
       </div>
     </div>
   );

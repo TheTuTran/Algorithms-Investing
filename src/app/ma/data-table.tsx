@@ -19,20 +19,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
+import { BeatLoader } from "react-spinners";
 import { DataTablePagination } from "./data-table-pagination";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/table-dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
+import { DialogDataTable } from "../../components/ma-dialog-component/dialog-data-table";
+import { dialogue_columns } from "../../components/ma-dialog-component/dialog-columns";
+import { SMA_Signal, SmaAnalysisResult, StockData } from "@/lib/types";
+import { generateSmaSignals } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  isLoading,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-
+  const [smaData, setSmaData] = React.useState<SMA_Signal[]>([]);
+  const [selectedShortSma, setSelectedShortSma] = React.useState<number>(0);
+  const [selectedLongSma, setSelectedLongSma] = React.useState<number>(0);
   const table = useReactTable({
     data,
     columns,
@@ -44,6 +60,8 @@ export function DataTable<TData, TValue>({
       sorting,
     },
   });
+
+  const dialogTriggerRef = React.useRef<HTMLButtonElement>(null);
 
   return (
     <div className="space-y-4">
@@ -73,6 +91,38 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    const storedData = localStorage.getItem("fetchedData");
+                    if (storedData) {
+                      const parsedData: StockData[] = JSON.parse(storedData);
+                      const dates = parsedData.map((entry) => entry.date);
+                      const closingPrices = parsedData.map(
+                        (entry) => entry.close
+                      );
+                      const shortSma = (row.original as SmaAnalysisResult)
+                        .shortSma;
+                      const longSma = (row.original as SmaAnalysisResult)
+                        .longSma;
+                      setSelectedShortSma(shortSma);
+                      setSelectedLongSma(longSma);
+
+                      const signals = generateSmaSignals(
+                        dates,
+                        closingPrices,
+                        shortSma,
+                        longSma
+                      );
+
+                      setSmaData(signals.reverse());
+                    } else {
+                      console.error(
+                        "No fetched data available in localStorage."
+                      );
+                    }
+
+                    dialogTriggerRef.current?.click();
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -90,7 +140,13 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {isLoading ? (
+                    <div>
+                      <BeatLoader color="#94a3b7" size={8} />
+                    </div>
+                  ) : (
+                    <>No results.</>
+                  )}
                 </TableCell>
               </TableRow>
             )}
@@ -98,6 +154,21 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <DataTablePagination table={table} />
+      <Dialog>
+        <DialogTrigger ref={dialogTriggerRef} asChild>
+          <button hidden>Open</button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {`Table with ${selectedShortSma} day SMA for Short and ${selectedLongSma} day SMA for Long`}
+            </DialogTitle>
+            <DialogDescription>
+              <DialogDataTable columns={dialogue_columns} data={smaData} />
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

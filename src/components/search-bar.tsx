@@ -36,13 +36,16 @@ const SearchBar: React.FC<SearchBarProps> = ({ setSymbol }) => {
 
   return (
     <div className="relative w-full">
-      <Input
-        type="text"
-        placeholder="Symbol (e.g., TSLA)"
-        value={inputValue}
-        onChange={handleChange}
-        className="hover:border-blue-500 max-w-[180px] ml-auto"
-      />
+      <div className="flex">
+        <div className="h-10 py-2 text-md font-semibold ml-auto">Symbol:</div>
+        <Input
+          type="text"
+          placeholder="(e.g., AAPL, TSLA, ..)"
+          value={inputValue}
+          onChange={handleChange}
+          className="hover:border-blue-500 max-w-[180px] ml-auto"
+        />
+      </div>
       {suggestions.length > 0 && (
         <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
           {suggestions.map((suggestion, index) => (

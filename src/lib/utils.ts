@@ -1,29 +1,15 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import yahooFinance from "yahoo-finance2";
+import { SMA_Signal, SmaAnalysisResult, StockData } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export interface StockData {
-  date: Date;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  adjClose?: number | undefined;
-  volume: number;
-}
-
-interface QueryOptions {
-  period1: string;
-  period2: string;
-}
-
 export async function fetchHistoricalData(
   query: string,
-  queryOptions: QueryOptions
+  queryOptions: { period1: string; period2: string }
 ): Promise<StockData[]> {
   try {
     const results = await yahooFinance.historical(query, queryOptions);
@@ -34,7 +20,7 @@ export async function fetchHistoricalData(
   }
 }
 
-export const getFormattedDates = () => {
+export function getFormattedDates() {
   const today = new Date();
   const lastYear = new Date(new Date().setFullYear(today.getFullYear() - 1));
 
@@ -42,129 +28,126 @@ export const getFormattedDates = () => {
     formattedToday: today.toISOString().split("T")[0],
     formattedLastYear: lastYear.toISOString().split("T")[0],
   };
-};
-
-interface SMA_Signal {
-  price: number;
-  shortSma: number | null;
-  longSma: number | null;
-  signal: number;
-  positions: number | null;
-  signalProfit: number | null;
-  cumulativeProfit: number;
 }
 
-function calculateSma(data: number[], window: number): (number | null)[] {
+function calculateSma(data: number[], period: number) {
   let sma: (number | null)[] = new Array(data.length).fill(null);
 
-  for (let i = window - 1; i < data.length; i++) {
+  for (let i = period - 1; i < data.length; i++) {
     let sum = 0;
-    for (let j = 0; j < window; j++) {
+    for (let j = 0; j < period; j++) {
       sum += data[i - j];
     }
-    sma[i] = sum / window;
+    sma[i] = sum / period;
   }
 
   return sma;
 }
 
-function generateSignals(
+export function generateSmaSignals(
+  date_data: Date[],
   data: number[],
-  shortWindow: number,
-  longWindow: number
+  fastSignal: number,
+  slowSignal: number
 ): SMA_Signal[] {
-  let signals: SMA_Signal[] = data.map((price, index) => ({
+  const signals: SMA_Signal[] = data.map((price, index) => ({
+    date: date_data[index],
     price,
     shortSma: null,
     longSma: null,
-    signal: 0,
+    holding: 0,
     positions: null,
     signalProfit: null,
     cumulativeProfit: 0,
   }));
 
-  signals.forEach((_, index) => {
-    signals[index].shortSma = calculateSma(data, shortWindow)[index];
-    signals[index].longSma = calculateSma(data, longWindow)[index];
-    if (index >= shortWindow) {
-      signals[index].signal =
-        signals[index].shortSma! > signals[index].longSma! ? 1 : 0;
+  const shortSmas = calculateSma(data, fastSignal);
+  const longSmas = calculateSma(data, slowSignal);
+
+  signals.forEach((signal, index) => {
+    signal.shortSma = shortSmas[index];
+    signal.longSma = longSmas[index];
+
+    if (signal.shortSma !== null && signal.longSma !== null) {
+      signal.holding = signal.shortSma > signal.longSma ? 1 : 0;
     }
   });
 
   for (let i = 1; i < signals.length; i++) {
-    signals[i].positions = signals[i].signal - signals[i - 1].signal;
+    if (
+      signals[i].holding !== undefined &&
+      signals[i - 1].holding !== undefined
+    ) {
+      signals[i].positions = signals[i].holding - signals[i - 1].holding;
+    }
   }
 
+  let cumulativeProfit = 0;
   let buyPrice: number | null = null;
   signals.forEach((signal, index) => {
     if (signal.positions === 1) {
       buyPrice = signal.price;
     } else if (signal.positions === -1 && buyPrice !== null) {
-      let sellPrice = signal.price;
-      let profit = sellPrice - buyPrice;
-      signals[index].signalProfit = profit;
+      const sellPrice = signal.price;
+      const profit = sellPrice - buyPrice;
+      signal.signalProfit = profit;
       buyPrice = null;
+      cumulativeProfit += profit;
     }
-  });
-
-  let cumulativeProfit = 0;
-  signals.forEach((signal, index) => {
-    if (signal.signalProfit !== null) {
-      cumulativeProfit += signal.signalProfit;
-    }
-    signals[index].cumulativeProfit = cumulativeProfit;
+    signal.cumulativeProfit = cumulativeProfit;
   });
 
   return signals;
 }
 
-function testSmaCombinations(
+export function analyzeSmaPerformance(
+  date_data: Date[],
   data: number[],
-  shortWindowRange: [number, number],
-  longWindowRange: [number, number]
-): [any[], [number, number], number] {
-  let bestProfit = -Infinity;
-  let bestCombination: [number, number] = [0, 0];
-  let results: any[] = [];
+  shortRange: string,
+  longRange: string
+): SmaAnalysisResult[] {
+  const parseRange = (range: string) => {
+    const [start, end] = range.split("-").map(Number);
+    return { start, end };
+  };
+
+  const shortRangeParsed = parseRange(shortRange);
+  const longRangeParsed = parseRange(longRange);
+
+  const results: SmaAnalysisResult[] = [];
 
   for (
-    let shortWindow = shortWindowRange[0];
-    shortWindow <= shortWindowRange[1];
-    shortWindow++
+    let short = shortRangeParsed.start;
+    short <= shortRangeParsed.end;
+    short++
   ) {
     for (
-      let longWindow = longWindowRange[0];
-      longWindow <= longWindowRange[1];
-      longWindow++
+      let long = longRangeParsed.start;
+      long <= longRangeParsed.end;
+      long++
     ) {
-      if (shortWindow >= longWindow) continue; // Skip invalid combinations
+      if (short >= long) continue;
 
-      let signals = generateSignals(data, shortWindow, longWindow);
-      let cumulativeProfit = signals[signals.length - 1].cumulativeProfit;
-      let profitableSignals = signals
-        .filter((s) => s.signalProfit !== null)
-        .map((s) => s.signalProfit!);
-      let profitPercentage =
-        (profitableSignals.filter((p) => p > 0).length /
-          profitableSignals.length) *
-        100;
-      let numberOfTrades = profitableSignals.length;
+      const signals = generateSmaSignals(date_data, data, short, long);
+      const positions = signals
+        .map((signal) => signal.positions)
+        .filter((pos) => pos !== null);
+      const numberOfTrades = positions.filter((pos) => pos === 1).length;
+      const profitableTrades = signals.filter(
+        (signal) => signal.signalProfit !== null && signal.signalProfit > 0
+      ).length;
+      const winPercentage =
+        numberOfTrades > 0 ? (profitableTrades / numberOfTrades) * 100 : 0;
+      const cumulativeProfit = signals[signals.length - 1].cumulativeProfit;
 
       results.push({
-        shortWindow,
-        longWindow,
+        shortSma: short,
+        longSma: long,
         cumulativeProfit,
-        profitPercentage,
+        winPercentage,
         numberOfTrades,
       });
-
-      if (cumulativeProfit > bestProfit) {
-        bestProfit = cumulativeProfit;
-        bestCombination = [shortWindow, longWindow];
-      }
     }
   }
-
-  return [results, bestCombination, bestProfit];
+  return results;
 }

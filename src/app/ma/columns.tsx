@@ -1,78 +1,63 @@
 "use client";
 
-import { StockData } from "@/lib/utils";
+import { SmaAnalysisResult } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "./data-table-column-header";
 
-export const columns: ColumnDef<StockData>[] = [
+export const columns: ColumnDef<SmaAnalysisResult>[] = [
   {
-    accessorKey: "date",
+    accessorKey: "shortSma",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Date" />
-    ),
-    cell: ({ row }) => new Date(row.getValue("date")).toLocaleDateString(),
-  },
-  {
-    accessorKey: "open",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Open" />
+      <DataTableColumnHeader column={column} title="Short SMA Period" />
     ),
     cell: ({ row }) => {
-      const open = row.getValue("open");
+      const shortSma = row.getValue("shortSma");
 
-      return <div>{open as React.ReactNode}</div>;
+      return <div>{shortSma as React.ReactNode}</div>;
     },
   },
   {
-    accessorKey: "high",
+    accessorKey: "longSma",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="High" />
+      <DataTableColumnHeader column={column} title="Long SMA Period" />
     ),
     cell: ({ row }) => {
-      const high = row.getValue("high");
+      const longSma = row.getValue("longSma");
 
-      return <div>{high as React.ReactNode}</div>;
+      return <div>{longSma as React.ReactNode}</div>;
     },
   },
   {
-    accessorKey: "low",
+    accessorKey: "cumulativeProfit",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Low" />
+      <DataTableColumnHeader column={column} title="Cumulative Profit" />
     ),
     cell: ({ row }) => {
-      const low = row.getValue("low");
+      const cumulativeProfit = row.getValue("cumulativeProfit");
 
-      return <div>{low as React.ReactNode}</div>;
+      return <div>{cumulativeProfit as React.ReactNode}</div>;
     },
   },
   {
-    accessorKey: "close",
+    accessorKey: "winPercentage",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Close" />
+      <DataTableColumnHeader column={column} title="Win Percentage" />
     ),
     cell: ({ row }) => {
-      const close = row.getValue("close");
+      const winPercentage = row.getValue("winPercentage");
 
-      return <div>{close as React.ReactNode}</div>;
+      return <div>{winPercentage as React.ReactNode}</div>;
     },
   },
   {
-    accessorKey: "adjClose",
-    header: "Adjusted Close",
-    cell: ({ row }) => {
-      const adjClose = row.getValue("adjClose");
-
-      return <div>{adjClose as React.ReactNode}</div>;
-    },
-  },
-  {
-    accessorKey: "volume",
+    accessorKey: "numberOfTrades",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Volume" />
+      <DataTableColumnHeader column={column} title="Number of Trades" />
     ),
     cell: ({ row }) => {
-      const volume = row.getValue("volume");
-      return <div>{volume as React.ReactNode}</div>;
+      const numberOfTrades = row.getValue("numberOfTrades");
+
+      return <div>{numberOfTrades as React.ReactNode}</div>;
     },
   },
 ];

@@ -23,8 +23,9 @@ const StockSearchForm: React.FC<StockSearchFormProps> = ({
     <>
       <div className="h-10 w-full pr-3 py-2 text-md font-semibold mr-auto">
         Showing:{" "}
-        {curName.length > 20 ? `${curName.substring(0, 20)}...` : curName}
+        {curName?.length > 19 ? `${curName.substring(0, 19)}...` : curName}
       </div>
+
       <SearchBar setSymbol={setSymbol} />
       <div className="h-10 py-2 text-md font-semibold ml-auto">From:</div>
       <Input

@@ -1,6 +1,6 @@
 "use client";
 
-import { StockData } from "@/lib/utils";
+import { StockData } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "./data-table-column-header";
 
@@ -58,7 +58,9 @@ export const columns: ColumnDef<StockData>[] = [
   },
   {
     accessorKey: "adjClose",
-    header: "Adjusted Close",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Adjusted Close" />
+    ),
     cell: ({ row }) => {
       const adjClose = row.getValue("adjClose");
 

@@ -1,5 +1,5 @@
 "use client";
-import { getFormattedDates } from "@/lib/utils";
+import { analyzeSmaPerformance, getFormattedDates } from "@/lib/utils";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { ChangeEvent, useState } from "react";
@@ -8,21 +8,75 @@ import { useStockData } from "@/hooks/useStockData";
 import { Tickers_dict } from "@/lib/data/nasdaq_tickers_dict";
 import StockSearchForm from "@/components/stock-search-form";
 import { Input } from "@/components/ui/input";
+import { SmaAnalysisResult } from "@/lib/types";
+import { useToast } from "@/components/ui/use-toast";
 
 const MovingAverage = ({}) => {
   const { formattedToday, formattedLastYear } = getFormattedDates();
-  const { historicalData, fetchStockData } = useStockData();
+  const { fetchStockData } = useStockData();
   const [period1, setPeriod1] = useState(formattedLastYear);
   const [period2, setPeriod2] = useState(formattedToday);
   const [symbol, setSymbol] = useState("");
   const [curName, setCurName] = useState("");
   const [shortTermWindow, setShortTermWindow] = useState("");
   const [longTermWindow, setLongTermWindow] = useState("");
+  const [smaData, setSmaData] = useState<SmaAnalysisResult[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    await fetchStockData(symbol, period1, period2);
-    setCurName(Tickers_dict[symbol]);
+    setIsLoading(true);
+    // Validate input contents
+    if (symbol === "" || shortTermWindow === "" || longTermWindow === "") {
+      toast({
+        title: "Error",
+        description: "All fields are required.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate shortTermWindow and longTermWindow format ("number-number")
+    const windowFormatRegex = /^\d+-\d+$/;
+    if (
+      !windowFormatRegex.test(shortTermWindow) ||
+      !windowFormatRegex.test(longTermWindow)
+    ) {
+      toast({
+        title: "Error",
+        description:
+          "The window format is incorrect. Please use the 'number-number' format.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const fetchedData = await fetchStockData(symbol, period1, period2);
+      localStorage.setItem("fetchedData", JSON.stringify(fetchedData));
+      if (fetchedData) {
+        const dates = fetchedData.map((entry) => entry.date);
+        const closingPrices = fetchedData.map((entry) => entry.close);
+        const analysisResults = analyzeSmaPerformance(
+          dates,
+          closingPrices,
+          shortTermWindow,
+          longTermWindow
+        );
+        setSmaData(analysisResults);
+        setCurName(Tickers_dict[symbol] || symbol);
+      } else {
+        setSmaData([]);
+        console.log("No data fetched or data is empty.");
+      }
+    } catch (error) {
+      console.error("Error fetching stock data: ", error);
+    }
+
+    setIsLoading(false);
   };
 
   return (
@@ -30,6 +84,13 @@ const MovingAverage = ({}) => {
       <h1 className="text-2xl font-bold mb-4">
         Find Best Moving Average Crossovers
       </h1>
+      <p className="text-sm text-muted-foreground mb-4">
+        Spot trends and pinpoint trade opportunities with this Moving Average
+        Crossover tool. Just choose a stock (some symbols may be missing from
+        autofill), set your windows, choose your dates, and click
+        &apos;Fetch&apos; to get started. Click on a row for more insights on
+        when the to buy and sell stock based on crossovers.
+      </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">
         <StockSearchForm
@@ -77,9 +138,7 @@ const MovingAverage = ({}) => {
         </Button>
       </div>
       <div className="w-full">
-        {historicalData && (
-          <DataTable columns={columns} data={historicalData} />
-        )}
+        <DataTable isLoading={isLoading} columns={columns} data={smaData} />
       </div>
     </div>
   );

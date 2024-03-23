@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StockData } from "@/lib/utils";
+import { StockData } from "@/lib/types";
 
 export const useStockData = () => {
   const [historicalData, setHistoricalData] = useState<StockData[]>([]);
@@ -29,6 +29,7 @@ export const useStockData = () => {
       if (!response.ok) throw new Error("Network response was not ok");
       const data: StockData[] = await response.json();
       setHistoricalData(data.reverse());
+      return data.reverse();
     } catch (error: any) {
       setError(error.message || "Failed to fetch historical data");
     } finally {
