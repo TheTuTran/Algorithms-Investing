@@ -82,11 +82,11 @@ export function generateMovingAverageSignals(
   let longMAs: (number | null)[];
 
   if (isSMA) {
-    shortMAs = calculateEma(data, fastSignal);
-    longMAs = calculateEma(data, slowSignal);
-  } else {
     shortMAs = calculateSma(data, fastSignal);
     longMAs = calculateSma(data, slowSignal);
+  } else {
+    shortMAs = calculateEma(data, fastSignal);
+    longMAs = calculateEma(data, slowSignal);
   }
 
   signals.forEach((signal, index) => {

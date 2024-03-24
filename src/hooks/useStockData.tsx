@@ -28,9 +28,9 @@ export const useStockData = () => {
       });
       if (!response.ok) throw new Error("Network response was not ok");
       const data: StockData[] = await response.json();
-      const reversedData = data.reverse();
-      setHistoricalData(reversedData);
-      return reversedData;
+      console.log(data);
+      setHistoricalData(data);
+      return data;
     } catch (error: any) {
       setError(error.message || "Failed to fetch historical data");
     } finally {

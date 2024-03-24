@@ -114,7 +114,6 @@ export function DataTable<TData, TValue>({
                         longSma,
                         true
                       );
-
                       setSmaData(signals.reverse());
                     } else {
                       console.error(
