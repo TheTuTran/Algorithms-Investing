@@ -1,7 +1,11 @@
 "use client";
 
 import { FC } from "react";
-import { ALGORITHMS_LINKS, OTHER_LINKS } from "@/configs/navigation";
+import {
+  TRADE_OPPORTUNITIES_ALGORITHMS_LINKS,
+  OTHER_LINKS,
+  MOMENTUM_ALGORITHMS_LINKS,
+} from "@/configs/navigation";
 
 interface SidebarProps {}
 
@@ -18,8 +22,12 @@ const Sidebar: FC<SidebarProps> = ({}) => {
               <div>
                 {[
                   {
-                    header: "Apply Algorithms on a Stock",
-                    items: ALGORITHMS_LINKS,
+                    header: "Find Trade Opportunities",
+                    items: TRADE_OPPORTUNITIES_ALGORITHMS_LINKS,
+                  },
+                  {
+                    header: "Find Trend Strengths",
+                    items: MOMENTUM_ALGORITHMS_LINKS,
                   },
                   { header: "Others", items: OTHER_LINKS },
                 ].map((section) => (

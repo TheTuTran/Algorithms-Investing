@@ -2,7 +2,7 @@
 
 import { StockData } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "./data-table-column-header";
+import { DataTableColumnHeader } from "@/components/data-table-column-header";
 
 export const columns: ColumnDef<StockData>[] = [
   {

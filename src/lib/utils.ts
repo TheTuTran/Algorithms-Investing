@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import yahooFinance from "yahoo-finance2";
-import { SMA_Signal, SmaAnalysisResult, StockData } from "./types";
+import { MA_Signal, MA_AnalysisResult } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 export async function fetchHistoricalData(
   query: string,
   queryOptions: { period1: string; period2: string }
-): Promise<StockData[]> {
+): Promise<any[]> {
   try {
     const results = await yahooFinance.historical(query, queryOptions);
     return results;
@@ -44,32 +44,57 @@ function calculateSma(data: number[], period: number) {
   return sma;
 }
 
-export function generateSmaSignals(
+function calculateEma(data: number[], period: number) {
+  let ema: (number | null)[] = new Array(data.length).fill(null);
+  let sma = calculateSma(data, period);
+
+  for (let i = period; i < data.length; i++) {
+    if (i === period) {
+      ema[i] = sma[i - 1];
+    } else if (ema[i - 1] !== null) {
+      // (Last Day SMA * (Period - 1) + Curr Day Close) / Period
+      // The 10 day EMA on Day 10 =  (Day 9 SMA x 9 + Day 10 close ) /10....  For clarity, the 10 day EMA on the 25th day is (day 24 SMA X 9 + day 25 close) / 10, etc.
+      ema[i] = ((ema[i - 1] as number) * (period - 1) + data[i]) / period;
+    }
+  }
+
+  return ema;
+}
+
+export function generateMovingAverageSignals(
   date_data: Date[],
   data: number[],
   fastSignal: number,
-  slowSignal: number
-): SMA_Signal[] {
-  const signals: SMA_Signal[] = data.map((price, index) => ({
+  slowSignal: number,
+  isSMA: boolean
+): MA_Signal[] {
+  const signals: MA_Signal[] = data.map((price, index) => ({
     date: date_data[index],
     price,
-    shortSma: null,
-    longSma: null,
+    shortMA: null,
+    longMA: null,
     holding: 0,
     positions: null,
     signalProfit: null,
     cumulativeProfit: 0,
   }));
+  let shortMAs: (number | null)[];
+  let longMAs: (number | null)[];
 
-  const shortSmas = calculateSma(data, fastSignal);
-  const longSmas = calculateSma(data, slowSignal);
+  if (isSMA) {
+    shortMAs = calculateEma(data, fastSignal);
+    longMAs = calculateEma(data, slowSignal);
+  } else {
+    shortMAs = calculateSma(data, fastSignal);
+    longMAs = calculateSma(data, slowSignal);
+  }
 
   signals.forEach((signal, index) => {
-    signal.shortSma = shortSmas[index];
-    signal.longSma = longSmas[index];
+    signal.shortMA = shortMAs[index];
+    signal.longMA = longMAs[index];
 
-    if (signal.shortSma !== null && signal.longSma !== null) {
-      signal.holding = signal.shortSma > signal.longSma ? 1 : 0;
+    if (signal.shortMA !== null && signal.longMA !== null) {
+      signal.holding = signal.shortMA > signal.longMA ? 1 : 0;
     }
   });
 
@@ -100,12 +125,13 @@ export function generateSmaSignals(
   return signals;
 }
 
-export function analyzeSmaPerformance(
+export function analyzeMovingAveragePerformance(
   date_data: Date[],
   data: number[],
   shortRange: string,
-  longRange: string
-): SmaAnalysisResult[] {
+  longRange: string,
+  isSMA: boolean
+): MA_AnalysisResult[] {
   const parseRange = (range: string) => {
     const [start, end] = range.split("-").map(Number);
     return { start, end };
@@ -114,7 +140,7 @@ export function analyzeSmaPerformance(
   const shortRangeParsed = parseRange(shortRange);
   const longRangeParsed = parseRange(longRange);
 
-  const results: SmaAnalysisResult[] = [];
+  const results: MA_AnalysisResult[] = [];
 
   for (
     let short = shortRangeParsed.start;
@@ -128,7 +154,13 @@ export function analyzeSmaPerformance(
     ) {
       if (short >= long) continue;
 
-      const signals = generateSmaSignals(date_data, data, short, long);
+      const signals = generateMovingAverageSignals(
+        date_data,
+        data,
+        short,
+        long,
+        isSMA
+      );
       const positions = signals
         .map((signal) => signal.positions)
         .filter((pos) => pos !== null);
@@ -141,8 +173,8 @@ export function analyzeSmaPerformance(
       const cumulativeProfit = signals[signals.length - 1].cumulativeProfit;
 
       results.push({
-        shortSma: short,
-        longSma: long,
+        shortMA: short,
+        longMA: long,
         cumulativeProfit,
         winPercentage,
         numberOfTrades,

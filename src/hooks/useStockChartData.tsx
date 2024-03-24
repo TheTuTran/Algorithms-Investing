@@ -2,11 +2,11 @@ import { useState } from "react";
 import { StockData } from "@/lib/types";
 
 export const useStockData = () => {
-  const [historicalData, setHistoricalData] = useState<StockData[]>([]);
+  const [chartData, setChartData] = useState<StockData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const fetchStockData = async (
+  const fetchStockChartData = async (
     symbol: string,
     period1: string,
     period2: string
@@ -15,7 +15,7 @@ export const useStockData = () => {
     setError("");
 
     try {
-      const response = await fetch("/api/historicalStock", {
+      const response = await fetch("/api/chartStock", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,10 +27,11 @@ export const useStockData = () => {
         }),
       });
       if (!response.ok) throw new Error("Network response was not ok");
-      const data: StockData[] = await response.json();
-      const reversedData = data.reverse();
-      setHistoricalData(reversedData);
-      return reversedData;
+      await response.json().then((data) => {
+        console.log(data);
+        setChartData(data);
+        return data;
+      });
     } catch (error: any) {
       setError(error.message || "Failed to fetch historical data");
     } finally {
@@ -38,5 +39,5 @@ export const useStockData = () => {
     }
   };
 
-  return { historicalData, fetchStockData, isLoading, error };
+  return { chartData, fetchStockChartData, isLoading, error };
 };

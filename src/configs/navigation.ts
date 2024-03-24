@@ -1,4 +1,4 @@
-export const ALGORITHMS_LINKS = [
+export const TRADE_OPPORTUNITIES_ALGORITHMS_LINKS = [
   {
     title: "Moving Average Crossover",
     href: "ma",
@@ -7,10 +7,18 @@ export const ALGORITHMS_LINKS = [
     title: "Exponential Moving Average Crossover",
     href: "ema",
   },
+
   {
-    title: "Moon Phase",
-    href: "moon-phase",
+    title: "ACD System",
+    href: "/acd-system",
   },
+  {
+    title: "Floor Pivots",
+    href: "/floor-pivots",
+  },
+];
+
+export const MOMENTUM_ALGORITHMS_LINKS = [
   {
     title: "%K Stochastic Oscillator",
     href: "k-stochastic",
@@ -20,16 +28,8 @@ export const ALGORITHMS_LINKS = [
     href: "macd-signal",
   },
   {
-    title: "3-day %K Stochastic Oscillator",
-    href: "/3day-k-stochastic",
-  },
-  {
-    title: "ACD System",
-    href: "/acd-system",
-  },
-  {
-    title: "Floor Pivots",
-    href: "/floor-pivots",
+    title: "%R and RSI Momentum Oscillator",
+    href: "%r-rsi",
   },
 ];
 

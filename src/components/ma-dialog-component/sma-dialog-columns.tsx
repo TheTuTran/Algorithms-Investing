@@ -1,10 +1,10 @@
 "use client";
 
-import { SMA_Signal } from "@/lib/types";
+import { MA_Signal } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "./data-table-column-header";
+import { DataTableColumnHeader } from "../data-table-column-header";
 
-export const dialogue_columns: ColumnDef<SMA_Signal>[] = [
+export const dialogue_columns: ColumnDef<MA_Signal>[] = [
   {
     accessorKey: "date",
     header: ({ column }) => (
@@ -24,25 +24,25 @@ export const dialogue_columns: ColumnDef<SMA_Signal>[] = [
     },
   },
   {
-    accessorKey: "shortSma",
+    accessorKey: "shortMA",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Short SMA" />
     ),
     cell: ({ row }) => {
-      const shortSma = row.getValue("shortSma");
+      const shortMA = row.getValue("shortMA");
 
-      return <div>{shortSma as React.ReactNode}</div>;
+      return <div>{shortMA as React.ReactNode}</div>;
     },
   },
   {
-    accessorKey: "longSma",
+    accessorKey: "longMA",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Long SMA" />
     ),
     cell: ({ row }) => {
-      const longSma = row.getValue("longSma");
+      const longMA = row.getValue("longMA");
 
-      return <div>{longSma as React.ReactNode}</div>;
+      return <div>{longMA as React.ReactNode}</div>;
     },
   },
   {

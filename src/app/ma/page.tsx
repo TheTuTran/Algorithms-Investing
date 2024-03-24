@@ -1,5 +1,8 @@
 "use client";
-import { analyzeSmaPerformance, getFormattedDates } from "@/lib/utils";
+import {
+  analyzeMovingAveragePerformance,
+  getFormattedDates,
+} from "@/lib/utils";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { ChangeEvent, useState } from "react";
@@ -8,7 +11,7 @@ import { useStockData } from "@/hooks/useStockData";
 import { Tickers_dict } from "@/lib/data/nasdaq_tickers_dict";
 import StockSearchForm from "@/components/stock-search-form";
 import { Input } from "@/components/ui/input";
-import { SmaAnalysisResult } from "@/lib/types";
+import { MA_AnalysisResult } from "@/lib/types";
 import { useToast } from "@/components/ui/use-toast";
 
 const MovingAverage = ({}) => {
@@ -20,7 +23,7 @@ const MovingAverage = ({}) => {
   const [curName, setCurName] = useState("");
   const [shortTermWindow, setShortTermWindow] = useState("");
   const [longTermWindow, setLongTermWindow] = useState("");
-  const [smaData, setSmaData] = useState<SmaAnalysisResult[]>([]);
+  const [smaData, setSmaData] = useState<MA_AnalysisResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
 
@@ -60,11 +63,12 @@ const MovingAverage = ({}) => {
       if (fetchedData) {
         const dates = fetchedData.map((entry) => entry.date);
         const closingPrices = fetchedData.map((entry) => entry.close);
-        const analysisResults = analyzeSmaPerformance(
+        const analysisResults = analyzeMovingAveragePerformance(
           dates,
           closingPrices,
           shortTermWindow,
-          longTermWindow
+          longTermWindow,
+          true
         );
         setSmaData(analysisResults);
         setCurName(Tickers_dict[symbol] || symbol);
@@ -89,7 +93,7 @@ const MovingAverage = ({}) => {
         Crossover tool. Just choose a stock (some symbols may be missing from
         autofill), set your windows, choose your dates, and click
         &apos;Fetch&apos; to get started. Click on a row for more insights on
-        when the to buy and sell stock based on crossovers.
+        when to buy and sell stock based on crossovers.
       </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">

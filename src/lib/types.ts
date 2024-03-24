@@ -8,20 +8,20 @@ export interface StockData {
   volume: number;
 }
 
-export interface SMA_Signal {
+export interface MA_Signal {
   date: Date;
   price: number;
-  shortSma: number | null;
-  longSma: number | null;
+  shortMA: number | null;
+  longMA: number | null;
   holding: number;
   positions: number | null;
   signalProfit: number | null;
   cumulativeProfit: number;
 }
 
-export interface SmaAnalysisResult {
-  shortSma: number;
-  longSma: number;
+export interface MA_AnalysisResult {
+  shortMA: number;
+  longMA: number;
   cumulativeProfit: number;
   winPercentage: number;
   numberOfTrades: number;

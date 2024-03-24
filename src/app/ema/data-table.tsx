@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/table-dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { DialogDataTable } from "../../components/ma-dialog-component/dialog-data-table";
-import { dialogue_columns } from "../../components/ma-dialog-component/sma-dialog-columns";
+import { dialogue_columns } from "../../components/ma-dialog-component/ema-dialog-columns";
 import { MA_Signal, MA_AnalysisResult, StockData } from "@/lib/types";
 import { generateMovingAverageSignals } from "@/lib/utils";
 
@@ -46,9 +46,9 @@ export function DataTable<TData, TValue>({
   isLoading,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [smaData, setSmaData] = React.useState<MA_Signal[]>([]);
-  const [selectedShortSma, setSelectedShortSma] = React.useState<number>(0);
-  const [selectedLongSma, setSelectedLongSma] = React.useState<number>(0);
+  const [emaData, setEmaData] = React.useState<MA_Signal[]>([]);
+  const [selectedShortEma, setSelectedShortEma] = React.useState<number>(0);
+  const [selectedLongEma, setSelectedLongEma] = React.useState<number>(0);
   const table = useReactTable({
     data,
     columns,
@@ -100,22 +100,22 @@ export function DataTable<TData, TValue>({
                       const closingPrices = parsedData.map(
                         (entry) => entry.close
                       );
-                      const shortSma = (row.original as MA_AnalysisResult)
+                      const shortEma = (row.original as MA_AnalysisResult)
                         .shortMA;
-                      const longSma = (row.original as MA_AnalysisResult)
+                      const longEma = (row.original as MA_AnalysisResult)
                         .longMA;
-                      setSelectedShortSma(shortSma);
-                      setSelectedLongSma(longSma);
+                      setSelectedShortEma(shortEma);
+                      setSelectedLongEma(longEma);
 
                       const signals = generateMovingAverageSignals(
                         dates,
                         closingPrices,
-                        shortSma,
-                        longSma,
-                        true
+                        shortEma,
+                        longEma,
+                        false
                       );
 
-                      setSmaData(signals.reverse());
+                      setEmaData(signals.reverse());
                     } else {
                       console.error(
                         "No fetched data available in localStorage."
@@ -162,10 +162,10 @@ export function DataTable<TData, TValue>({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {`Table with ${selectedShortSma} day SMA for Short and ${selectedLongSma} day SMA for Long`}
+              {`Table with ${selectedShortEma} day EMA for Short and ${selectedLongEma} day EMA for Long`}
             </DialogTitle>
             <DialogDescription>
-              <DialogDataTable columns={dialogue_columns} data={smaData} />
+              <DialogDataTable columns={dialogue_columns} data={emaData} />
             </DialogDescription>
           </DialogHeader>
         </DialogContent>

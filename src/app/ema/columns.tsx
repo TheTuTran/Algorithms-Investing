@@ -8,7 +8,7 @@ export const columns: ColumnDef<MA_AnalysisResult>[] = [
   {
     accessorKey: "shortMA",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Short SMA Period" />
+      <DataTableColumnHeader column={column} title="Short EMA Period" />
     ),
     cell: ({ row }) => {
       const shortMA = row.getValue("shortMA");
@@ -19,7 +19,7 @@ export const columns: ColumnDef<MA_AnalysisResult>[] = [
   {
     accessorKey: "longMA",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Long SMA Period" />
+      <DataTableColumnHeader column={column} title="Long EMA Period" />
     ),
     cell: ({ row }) => {
       const longMA = row.getValue("longMA");
