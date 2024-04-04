@@ -4,8 +4,8 @@ import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useStockData } from "@/hooks/useStockData";
-import { Tickers_dict } from "@/lib/data/nasdaq_tickers_dict";
+import { useChartData } from "@/hooks/useChartData";
+import { Tickers_dict } from "@/lib/data/tickers_dict";
 import StockSearchForm from "@/components/stock-search-form";
 
 export default function HomePage() {
@@ -13,18 +13,28 @@ export default function HomePage() {
   const [period1, setPeriod1] = useState(formattedLastYear);
   const [period2, setPeriod2] = useState(formattedToday);
   const [symbol, setSymbol] = useState("");
-  const { historicalData, fetchStockData } = useStockData();
+  const { chartData, fetchChartData } = useChartData();
+
   const [curName, setCurName] = useState("");
 
   const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    await fetchStockData(symbol, period1, period2);
+    await fetchChartData(symbol, period1, period2, "1d");
     setCurName(Tickers_dict[symbol] || symbol);
   };
 
   return (
     <div className="flex flex-col mt-8">
       <h1 className="text-2xl font-bold mb-4">Historical Data</h1>
+      <p className="text-sm text-muted-foreground mb-4">
+        View the historical data here or you can download it from{" "}
+        <a
+          className=" hover:text-slate-600 hover:underline"
+          href={`https://finance.yahoo.com/quote/${symbol}`}
+        >
+          here
+        </a>
+      </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">
         <StockSearchForm
@@ -46,7 +56,7 @@ export default function HomePage() {
       </div>
 
       <div className="w-full">
-        <DataTable columns={columns} data={historicalData} />
+        <DataTable columns={columns} data={chartData} />
       </div>
     </div>
   );

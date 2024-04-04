@@ -5,7 +5,7 @@ import {
   TRADE_OPPORTUNITIES_ALGORITHMS_LINKS,
   OTHER_LINKS,
   MOMENTUM_ALGORITHMS_LINKS,
-} from "@/configs/navigation";
+} from "@/lib/consts/navigation";
 
 interface SidebarProps {}
 

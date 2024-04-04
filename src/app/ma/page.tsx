@@ -7,16 +7,17 @@ import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useStockData } from "@/hooks/useStockData";
-import { Tickers_dict } from "@/lib/data/nasdaq_tickers_dict";
+import { useChartData } from "@/hooks/useChartData";
+import { Tickers_dict } from "@/lib/data/tickers_dict";
 import StockSearchForm from "@/components/stock-search-form";
 import { Input } from "@/components/ui/input";
-import { MA_AnalysisResult } from "@/lib/types";
+import { MA_AnalysisResult, StrategyType } from "@/lib/types";
 import { useToast } from "@/components/ui/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const MovingAverage = ({}) => {
   const { formattedToday, formattedLastYear } = getFormattedDates();
-  const { fetchStockData } = useStockData();
+  const { fetchChartData } = useChartData();
   const [period1, setPeriod1] = useState(formattedLastYear);
   const [period2, setPeriod2] = useState(formattedToday);
   const [symbol, setSymbol] = useState("");
@@ -26,6 +27,8 @@ const MovingAverage = ({}) => {
   const [smaData, setSmaData] = useState<MA_AnalysisResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
+  const [considerLongEntries, setConsiderLongEntries] = useState(true);
+  const [considerShortEntries, setConsiderShortEntries] = useState(false);
 
   const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
@@ -58,23 +61,51 @@ const MovingAverage = ({}) => {
     }
 
     try {
-      const fetchedData = await fetchStockData(symbol, period1, period2);
+      const fetchedData = await fetchChartData(symbol, period1, period2, "1d");
       localStorage.setItem("fetchedData", JSON.stringify(fetchedData));
       if (fetchedData) {
         const dates = fetchedData.map((entry) => entry.date);
         const closingPrices = fetchedData.map((entry) => entry.close);
+        let strategyType;
+
+        if (considerLongEntries && !considerShortEntries) {
+          strategyType = StrategyType.Buying;
+        } else if (!considerLongEntries && considerShortEntries) {
+          strategyType = StrategyType.Shorting;
+        } else if (considerLongEntries && considerShortEntries) {
+          strategyType = StrategyType.Both;
+        }
+        if (!strategyType) {
+          toast({
+            title: "Error",
+            description:
+              "Please check one of the boxes for calculating profits based on buying, selling, or both.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+        localStorage.setItem(
+          "considerLongEntries",
+          JSON.stringify(considerLongEntries)
+        );
+        localStorage.setItem(
+          "considerShortEntries",
+          JSON.stringify(considerShortEntries)
+        );
+
         const analysisResults = analyzeMovingAveragePerformance(
           dates,
           closingPrices,
           shortTermWindow,
           longTermWindow,
-          true
+          true,
+          strategyType
         );
         setSmaData(analysisResults);
         setCurName(Tickers_dict[symbol] || symbol);
       } else {
         setSmaData([]);
-        console.log("No data fetched or data is empty.");
       }
     } catch (error) {
       console.error("Error fetching stock data: ", error);
@@ -106,9 +137,9 @@ const MovingAverage = ({}) => {
           setPeriod2={setPeriod2}
         />
       </div>
-      <div className="w-full mb-4 flex items-center gap-4 justify-between">
+      <div className="w-full mb-4 flex items-center gap-2 justify-between">
         <div className="flex items-center gap-2">
-          <span className="h-10 py-2 text-md font-semibold">
+          <span className="h-10 py-2 text-sm font-semibold">
             Short Term Window:
           </span>
           <Input
@@ -123,7 +154,7 @@ const MovingAverage = ({}) => {
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-10 py-2 text-md font-semibold">
+          <span className="h-10 py-2 text-sm font-semibold">
             Long Term Window:
           </span>
           <Input
@@ -136,6 +167,38 @@ const MovingAverage = ({}) => {
             }}
             className="hover:border-blue-500 max-w-[180px]"
           />
+        </div>
+        <div>
+          <div className="flex items-center space-x-2 py-1">
+            <Checkbox
+              id="considerLongEntries"
+              checked={considerLongEntries}
+              onCheckedChange={() => {
+                setConsiderLongEntries(!considerLongEntries);
+              }}
+            />
+            <label
+              htmlFor="considerLongEntries"
+              className="text-sm font-medium leading-none"
+            >
+              Consider Long Positions
+            </label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="considerShortEntries"
+              checked={considerShortEntries}
+              onCheckedChange={() => {
+                setConsiderShortEntries(!considerShortEntries);
+              }}
+            />
+            <label
+              htmlFor="considerShortEntries"
+              className="text-sm font-medium leading-none"
+            >
+              Consider Short Positions
+            </label>
+          </div>
         </div>
         <Button onClick={handleSubmit} className="btn btn-primary self-start">
           Fetch

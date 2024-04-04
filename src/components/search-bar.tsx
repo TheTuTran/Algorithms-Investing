@@ -1,47 +1,43 @@
 import React, { useState, ChangeEvent } from "react";
-import { Tickers } from "@/lib/data/nasdaq_tickers";
 import { Input } from "./ui/input";
+import { Tickers_dict } from "@/lib/data/tickers_dict";
 
 interface SearchBarProps {
   setSymbol: (symbol: string) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ setSymbol }) => {
-  const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setInputValue(value);
+    setSymbol(value);
 
     if (!value) {
       setSuggestions([]);
       return;
     }
 
-    const matchedSuggestions = Tickers.filter(
-      (ticker) =>
-        ticker.Symbol &&
-        ticker.Symbol.toLowerCase().startsWith(value.toLowerCase())
-    ).map((ticker) => ticker.Symbol as string);
+    const matchedSuggestions = Object.keys(Tickers_dict)
+      .filter((symbol) => symbol.toLowerCase().startsWith(value.toLowerCase()))
+      .slice(0, 5); // Limiting to first 5 matches
 
-    setSuggestions(matchedSuggestions.slice(0, 5));
+    setSuggestions(matchedSuggestions);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     setSymbol(suggestion);
-    setInputValue(suggestion);
+    setSymbol(suggestion);
     setSuggestions([]);
   };
 
   return (
     <div className="relative w-full">
       <div className="flex">
-        <div className="h-10 py-2 text-md font-semibold ml-auto">Symbol:</div>
+        <div className="h-10 py-2 text-sm font-semibold ml-auto">Symbol:</div>
         <Input
           type="text"
           placeholder="(e.g., AAPL, TSLA, ..)"
-          value={inputValue}
           onChange={handleChange}
           className="hover:border-blue-500 max-w-[180px] ml-auto"
         />

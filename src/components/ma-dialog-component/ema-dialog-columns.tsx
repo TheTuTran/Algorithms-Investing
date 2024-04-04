@@ -53,7 +53,15 @@ export const dialogue_columns: ColumnDef<MA_Signal>[] = [
     cell: ({ row }) => {
       const holding = row.getValue("holding");
 
-      return <div>{holding == 1 ? "Yes" : ("No" as React.ReactNode)}</div>;
+      return (
+        <div>
+          {holding == 1
+            ? "Long Position"
+            : holding == -1
+            ? "Short Position"
+            : "No"}
+        </div>
+      );
     },
   },
   {

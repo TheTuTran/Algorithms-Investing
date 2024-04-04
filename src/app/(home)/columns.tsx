@@ -1,10 +1,10 @@
 "use client";
 
-import { StockData } from "@/lib/types";
+import { Quote } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 
-export const columns: ColumnDef<StockData>[] = [
+export const columns: ColumnDef<Quote>[] = [
   {
     accessorKey: "date",
     header: ({ column }) => (

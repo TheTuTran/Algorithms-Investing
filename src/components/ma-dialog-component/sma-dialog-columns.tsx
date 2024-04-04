@@ -1,6 +1,6 @@
 "use client";
 
-import { MA_Signal } from "@/lib/types";
+import { MA_Signal, StrategyType } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "../data-table-column-header";
 
@@ -52,8 +52,18 @@ export const dialogue_columns: ColumnDef<MA_Signal>[] = [
     ),
     cell: ({ row }) => {
       const holding = row.getValue("holding");
+      const considerLongEntries = localStorage.getItem("considerLongEntries");
+      const considerShortEntries = localStorage.getItem("considerShortEntries");
 
-      return <div>{holding == 1 ? "Yes" : ("No" as React.ReactNode)}</div>;
+      return (
+        <div>
+          {holding === 1 && considerLongEntries === "true"
+            ? "Long Position"
+            : holding === -1 && considerShortEntries === "true"
+            ? "Short Position"
+            : "No"}
+        </div>
+      );
     },
   },
   {

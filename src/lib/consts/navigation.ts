@@ -7,28 +7,31 @@ export const TRADE_OPPORTUNITIES_ALGORITHMS_LINKS = [
     title: "Exponential Moving Average Crossover",
     href: "ema",
   },
-
   {
-    title: "ACD System",
-    href: "/acd-system",
+    title: "Stochastic Moving Average Crossover (Work in Progress)",
+    href: "stochastic-ma",
   },
   {
-    title: "Floor Pivots",
-    href: "/floor-pivots",
+    title: "ACD System (Work in Progress)",
+    href: "acd-system",
+  },
+  {
+    title: "Floor Pivots (Work in Progress)",
+    href: "floor-pivots",
   },
 ];
 
 export const MOMENTUM_ALGORITHMS_LINKS = [
   {
-    title: "%K Stochastic Oscillator",
+    title: "%K Stochastic Oscillator (Work in Progress)",
     href: "k-stochastic",
   },
   {
-    title: "MACD Signal",
+    title: "MACD Signal (Work in Progress)",
     href: "macd-signal",
   },
   {
-    title: "%R and RSI Momentum Oscillator",
+    title: "%R and RSI Momentum Oscillator (Work in Progress)",
     href: "%r-rsi",
   },
 ];

@@ -31,7 +31,7 @@ import {
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { DialogDataTable } from "../../components/ma-dialog-component/dialog-data-table";
 import { dialogue_columns } from "../../components/ma-dialog-component/ema-dialog-columns";
-import { MA_Signal, MA_AnalysisResult, StockData } from "@/lib/types";
+import { MA_Signal, MA_AnalysisResult, StrategyType, Quote } from "@/lib/types";
 import { generateMovingAverageSignals } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
@@ -95,7 +95,7 @@ export function DataTable<TData, TValue>({
                   onClick={() => {
                     const storedData = localStorage.getItem("fetchedData");
                     if (storedData) {
-                      const parsedData: StockData[] = JSON.parse(storedData);
+                      const parsedData: Quote[] = JSON.parse(storedData);
                       const dates = parsedData.map((entry) => entry.date);
                       const closingPrices = parsedData.map(
                         (entry) => entry.close
@@ -107,12 +107,38 @@ export function DataTable<TData, TValue>({
                       setSelectedShortEma(shortEma);
                       setSelectedLongEma(longEma);
 
+                      const considerLongEntries = localStorage.getItem(
+                        "considerLongEntries"
+                      );
+                      const considerShortEntries = localStorage.getItem(
+                        "considerShortEntries"
+                      );
+                      let strategyType;
+                      if (
+                        considerLongEntries &&
+                        considerShortEntries === "false"
+                      ) {
+                        strategyType = StrategyType.Buying;
+                      } else if (
+                        considerLongEntries === "false" &&
+                        considerShortEntries
+                      ) {
+                        strategyType = StrategyType.Shorting;
+                      } else if (considerLongEntries && considerShortEntries) {
+                        strategyType = StrategyType.Both;
+                      }
+
+                      if (!strategyType) {
+                        return;
+                      }
+
                       const signals = generateMovingAverageSignals(
                         dates,
                         closingPrices,
                         shortEma,
                         longEma,
-                        false
+                        false,
+                        strategyType
                       );
 
                       setEmaData(signals.reverse());

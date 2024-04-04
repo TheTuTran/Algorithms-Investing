@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { StockData } from "@/lib/types";
+import { Quote, StockData } from "@/lib/types";
 
-export const useStockData = () => {
-  const [chartData, setChartData] = useState<StockData[]>([]);
+export const useChartData = () => {
+  const [chartData, setChartData] = useState<Quote[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const fetchStockChartData = async (
+  const fetchChartData = async (
     symbol: string,
     period1: string,
-    period2: string
+    period2: string,
+    interval: string
   ) => {
     setIsLoading(true);
     setError("");
@@ -24,20 +25,21 @@ export const useStockData = () => {
           symbol,
           period1,
           period2,
+          interval,
         }),
       });
       if (!response.ok) throw new Error("Network response was not ok");
-      await response.json().then((data) => {
-        console.log(data);
-        setChartData(data);
-        return data;
-      });
+      const data: StockData = await response.json();
+
+      setChartData(data.quotes);
+      return data.quotes;
     } catch (error: any) {
       setError(error.message || "Failed to fetch historical data");
+      return null;
     } finally {
       setIsLoading(false);
     }
   };
 
-  return { chartData, fetchStockChartData, isLoading, error };
+  return { chartData, fetchChartData, isLoading, error };
 };

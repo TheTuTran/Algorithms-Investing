@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import yahooFinance from "yahoo-finance2";
-import { MA_Signal, MA_AnalysisResult } from "./types";
+import { MA_Signal, MA_AnalysisResult, StrategyType } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -66,7 +66,8 @@ export function generateMovingAverageSignals(
   data: number[],
   fastSignal: number,
   slowSignal: number,
-  isSMA: boolean
+  isSMA: boolean,
+  strategyType: StrategyType
 ): MA_Signal[] {
   const signals: MA_Signal[] = data.map((price, index) => ({
     date: date_data[index],
@@ -78,47 +79,109 @@ export function generateMovingAverageSignals(
     signalProfit: null,
     cumulativeProfit: 0,
   }));
-  let shortMAs: (number | null)[];
-  let longMAs: (number | null)[];
 
-  if (isSMA) {
-    shortMAs = calculateSma(data, fastSignal);
-    longMAs = calculateSma(data, slowSignal);
-  } else {
-    shortMAs = calculateEma(data, fastSignal);
-    longMAs = calculateEma(data, slowSignal);
-  }
+  let shortMAs = isSMA
+    ? calculateSma(data, fastSignal)
+    : calculateEma(data, fastSignal);
+  let longMAs = isSMA
+    ? calculateSma(data, slowSignal)
+    : calculateEma(data, slowSignal);
 
+  // This is the logic to see if holding long or short position or none
   signals.forEach((signal, index) => {
     signal.shortMA = shortMAs[index];
     signal.longMA = longMAs[index];
 
     if (signal.shortMA !== null && signal.longMA !== null) {
       signal.holding = signal.shortMA > signal.longMA ? 1 : 0;
+      signal.holding = signal.shortMA < signal.longMA ? -1 : signal.holding;
     }
   });
 
+  // Position represents buying or selling a stock
   for (let i = 1; i < signals.length; i++) {
-    if (
-      signals[i].holding !== undefined &&
-      signals[i - 1].holding !== undefined
-    ) {
-      signals[i].positions = signals[i].holding - signals[i - 1].holding;
+    if (signals[i].holding !== signals[i - 1].holding) {
+      signals[i].positions = signals[i].holding;
     }
   }
 
   let cumulativeProfit = 0;
-  let buyPrice: number | null = null;
+  let positionEntryPrice: number | null = null;
+
   signals.forEach((signal, index) => {
-    if (signal.positions === 1) {
-      buyPrice = signal.price;
-    } else if (signal.positions === -1 && buyPrice !== null) {
-      const sellPrice = signal.price;
-      const profit = sellPrice - buyPrice;
-      signal.signalProfit = profit;
-      buyPrice = null;
-      cumulativeProfit += profit;
+    const prevSignal = index > 0 ? signals[index - 1] : null;
+
+    switch (strategyType) {
+      case StrategyType.Buying:
+        if (signal.positions === 1) {
+          // Enter buy position
+          positionEntryPrice = signal.price;
+        } else if (signal.positions === -1 && positionEntryPrice !== null) {
+          // Exit buy position
+          const sellPrice = signal.price;
+          const profit = sellPrice - positionEntryPrice;
+          signal.signalProfit = profit;
+          positionEntryPrice = null;
+          cumulativeProfit += profit;
+        }
+        break;
+
+      case StrategyType.Shorting:
+        if (signal.positions === -1) {
+          // Enter short position
+          positionEntryPrice = signal.price;
+        } else if (signal.positions === 1 && positionEntryPrice !== null) {
+          // Exit short position
+          const coverPrice = signal.price;
+          const profit = positionEntryPrice - coverPrice;
+          signal.signalProfit = profit;
+          positionEntryPrice = null;
+          cumulativeProfit += profit;
+        }
+        break;
+
+      case StrategyType.Both:
+        if (signal.positions === 1) {
+          if (
+            prevSignal &&
+            prevSignal.holding === -1 &&
+            positionEntryPrice !== null
+          ) {
+            // Switching from short to buy
+            // Calculate profit from shorting
+            const profit = positionEntryPrice - signal.price;
+            signal.signalProfit = profit;
+            cumulativeProfit += profit;
+          }
+          // Enter buy position
+          positionEntryPrice = signal.price;
+        } else if (signal.positions === -1) {
+          if (
+            prevSignal &&
+            prevSignal.holding === 1 &&
+            positionEntryPrice !== null
+          ) {
+            // Switching from buy to short
+            // Calculate profit from buying
+            const profit = signal.price - positionEntryPrice;
+            signal.signalProfit = profit;
+            cumulativeProfit += profit;
+          }
+          // Enter short position
+          positionEntryPrice = signal.price;
+        } else if (signal.positions === 0 && positionEntryPrice !== null) {
+          // Exiting a position to nonne position
+          const profit =
+            signal.holding === 1
+              ? signal.price - positionEntryPrice // Exiting a buy to none position
+              : positionEntryPrice - signal.price; // Exiting a short to none position
+          signal.signalProfit = profit;
+          cumulativeProfit += profit;
+          positionEntryPrice = null;
+        }
+        break;
     }
+
     signal.cumulativeProfit = cumulativeProfit;
   });
 
@@ -130,7 +193,8 @@ export function analyzeMovingAveragePerformance(
   data: number[],
   shortRange: string,
   longRange: string,
-  isSMA: boolean
+  isSMA: boolean,
+  strategyType: StrategyType
 ): MA_AnalysisResult[] {
   const parseRange = (range: string) => {
     const [start, end] = range.split("-").map(Number);
@@ -159,19 +223,34 @@ export function analyzeMovingAveragePerformance(
         data,
         short,
         long,
-        isSMA
+        isSMA,
+        strategyType
       );
       const positions = signals
         .map((signal) => signal.positions)
         .filter((pos) => pos !== null);
-      const numberOfTrades = positions.filter((pos) => pos === 1).length;
-      const profitableTrades = signals.filter(
+
+      let numberOfTrades;
+
+      switch (strategyType) {
+        case StrategyType.Buying:
+          numberOfTrades = positions.filter((pos) => pos === 1).length;
+          break;
+        case StrategyType.Shorting:
+          numberOfTrades = positions.filter((pos) => pos === -1).length;
+          break;
+        case StrategyType.Both:
+          numberOfTrades = positions.filter(
+            (pos) => pos === 1 || pos === -1
+          ).length;
+          break;
+      }
+      let profitableTrades = signals.filter(
         (signal) => signal.signalProfit !== null && signal.signalProfit > 0
       ).length;
       const winPercentage =
         numberOfTrades > 0 ? (profitableTrades / numberOfTrades) * 100 : 0;
       const cumulativeProfit = signals[signals.length - 1].cumulativeProfit;
-
       results.push({
         shortMA: short,
         longMA: long,
