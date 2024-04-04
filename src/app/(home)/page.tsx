@@ -31,6 +31,8 @@ export default function HomePage() {
         <a
           className=" hover:text-slate-600 hover:underline"
           href={`https://finance.yahoo.com/quote/${symbol}`}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           here
         </a>

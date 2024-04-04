@@ -57,12 +57,12 @@ export const columns: ColumnDef<Quote>[] = [
     },
   },
   {
-    accessorKey: "adjClose",
+    accessorKey: "adjclose",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Adjusted Close" />
     ),
     cell: ({ row }) => {
-      const adjClose = row.getValue("adjClose");
+      const adjClose = row.getValue("adjclose");
 
       return <div>{adjClose as React.ReactNode}</div>;
     },
