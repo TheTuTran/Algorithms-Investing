@@ -124,6 +124,12 @@ const ExponentialMovingAverage = ({}) => {
         &apos;Fetch&apos; to get started. Click on a row for more insights on
         when to buy and sell stock based on crossovers.
       </p>
+      <p className="text-sm text-muted-foreground mb-4">
+        When the short term EMA crosses above the long term EMA, this is a sign
+        of an uptrend, which indicates a buy. Vise versa, when the short term
+        EMA crosses below the long term EMA, this is a sign of a downtrend,
+        which indicates a sell.
+      </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">
         <StockSearchForm

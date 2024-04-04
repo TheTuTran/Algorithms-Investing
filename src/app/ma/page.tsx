@@ -126,6 +126,12 @@ const MovingAverage = ({}) => {
         &apos;Fetch&apos; to get started. Click on a row for more insights on
         when to buy and sell stock based on crossovers.
       </p>
+      <p className="text-sm text-muted-foreground mb-4">
+        When the short term SMA crosses above the long term SMA, this is a sign
+        of an uptrend, which indicates a buy. Vise versa, when the short term
+        SMA crosses below the long term SMA, this is a sign of a downtrend,
+        which indicates a sell.
+      </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">
         <StockSearchForm
