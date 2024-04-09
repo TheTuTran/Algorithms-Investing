@@ -61,13 +61,51 @@ function calculateEma(data: number[], period: number) {
   return ema;
 }
 
+export function calculateStochastic(
+  close: number[],
+  high: number[],
+  low: number[],
+  period: number
+): number[] {
+  // Initialize the array for %K values
+  let percentK: number[] = [];
+
+  // Start the loop from the point where the first calculation is possible
+  for (let i = period - 1; i < close.length; i++) {
+    // Find the highest high and the lowest low in the last `period` candles
+    let periodHighs = high.slice(i - period + 1, i + 1);
+    let periodLows = low.slice(i - period + 1, i + 1);
+    let highestHigh = Math.max(...periodHighs);
+    let lowestLow = Math.min(...periodLows);
+
+    // Calculate %K using the formula
+    let currentClose = close[i];
+
+    // Handle the case where highestHigh somehow equals lowestLow to avoid division by zero
+    if (highestHigh === lowestLow) {
+      percentK.push(0);
+    } else {
+      let kValue =
+        ((currentClose - lowestLow) / (highestHigh - lowestLow)) * 100;
+      percentK.push(kValue);
+    }
+  }
+
+  let initialNulls = new Array(period - 1).fill(null);
+
+  return [...initialNulls, ...percentK];
+}
+
 export function generateMovingAverageSignals(
   date_data: Date[],
   data: number[],
   fastSignal: number,
   slowSignal: number,
   isSMA: boolean,
-  strategyType: StrategyType
+  strategyType: StrategyType,
+  stochastic?: number[],
+  overboughtLevel?: number,
+  oversoldLevel?: number
 ): MA_Signal[] {
   const signals: MA_Signal[] = data.map((price, index) => ({
     date: date_data[index],
@@ -88,15 +126,55 @@ export function generateMovingAverageSignals(
     : calculateEma(data, slowSignal);
 
   // This is the logic to see if holding long or short position or none
-  signals.forEach((signal, index) => {
-    signal.shortMA = shortMAs[index];
-    signal.longMA = longMAs[index];
+  if (stochastic) {
+    signals.forEach((signal, index) => {
+      signal.shortMA = shortMAs[index];
+      signal.longMA = longMAs[index];
+      const stochCondition =
+        overboughtLevel &&
+        oversoldLevel &&
+        stochastic &&
+        stochastic[index] !== undefined;
 
-    if (signal.shortMA !== null && signal.longMA !== null) {
-      signal.holding = signal.shortMA > signal.longMA ? 1 : 0;
-      signal.holding = signal.shortMA < signal.longMA ? -1 : signal.holding;
-    }
-  });
+      if (signal.shortMA !== null && signal.longMA !== null && stochCondition) {
+        if (
+          stochastic[index] > overboughtLevel &&
+          signal.shortMA < signal.longMA
+        ) {
+          // MA indicates sell, but Stochastic indicates overbought - do nothing or consider selling if your strategy allows
+          signal.holding = -1;
+        } else if (
+          stochastic[index] < oversoldLevel &&
+          signal.shortMA > signal.longMA
+        ) {
+          // MA indicates buy, but Stochastic indicates oversold - do nothing or consider buying if your strategy allows
+          signal.holding = 1;
+        } else if (
+          stochastic[index] <= overboughtLevel &&
+          stochastic[index] >= oversoldLevel
+        ) {
+          // Stochastic is neutral, follow the MA signal
+          signal.holding = 0;
+        }
+      }
+    });
+  } else {
+    console.log("no stochastic exist doing just MA thing");
+    signals.forEach((signal, index) => {
+      signal.shortMA = shortMAs[index];
+      signal.longMA = longMAs[index];
+
+      if (signal.shortMA !== null && signal.longMA !== null) {
+        // Stochastic not applicable, follow the MA signal
+        signal.holding =
+          signal.shortMA > signal.longMA
+            ? 1
+            : signal.shortMA < signal.longMA
+            ? -1
+            : 0;
+      }
+    });
+  }
 
   // Position represents buying or selling a stock
   for (let i = 1; i < signals.length; i++) {
@@ -194,7 +272,10 @@ export function analyzeMovingAveragePerformance(
   shortRange: string,
   longRange: string,
   isSMA: boolean,
-  strategyType: StrategyType
+  strategyType: StrategyType,
+  stochastic?: number[],
+  overboughtLevel?: number,
+  oversoldLevel?: number
 ): MA_AnalysisResult[] {
   const parseRange = (range: string) => {
     const [start, end] = range.split("-").map(Number);
@@ -224,7 +305,10 @@ export function analyzeMovingAveragePerformance(
         short,
         long,
         isSMA,
-        strategyType
+        strategyType,
+        stochastic,
+        overboughtLevel,
+        oversoldLevel
       );
       const positions = signals
         .map((signal) => signal.positions)

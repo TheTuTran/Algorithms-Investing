@@ -26,7 +26,7 @@ export const dialogue_columns: ColumnDef<MA_Signal>[] = [
   {
     accessorKey: "shortMA",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Short SMA" />
+      <DataTableColumnHeader column={column} title="Fast SMA" />
     ),
     cell: ({ row }) => {
       const shortMA = row.getValue("shortMA");
@@ -37,7 +37,7 @@ export const dialogue_columns: ColumnDef<MA_Signal>[] = [
   {
     accessorKey: "longMA",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Long SMA" />
+      <DataTableColumnHeader column={column} title="Slow SMA" />
     ),
     cell: ({ row }) => {
       const longMA = row.getValue("longMA");

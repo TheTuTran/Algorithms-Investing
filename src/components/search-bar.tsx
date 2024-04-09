@@ -7,10 +7,12 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ setSymbol }) => {
+  const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    setInputValue(value);
     setSymbol(value);
 
     if (!value) {
@@ -27,7 +29,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ setSymbol }) => {
 
   const handleSuggestionClick = (suggestion: string) => {
     setSymbol(suggestion);
-    setSymbol(suggestion);
+    setInputValue(suggestion);
     setSuggestions([]);
   };
 
@@ -37,6 +39,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ setSymbol }) => {
         <div className="h-10 py-2 text-sm font-semibold ml-auto">Symbol:</div>
         <Input
           type="text"
+          value={inputValue}
           placeholder="(e.g., AAPL, TSLA, ..)"
           onChange={handleChange}
           className="hover:border-blue-500 max-w-[180px] ml-auto"

@@ -125,10 +125,10 @@ const ExponentialMovingAverage = ({}) => {
         when to buy and sell stock based on crossovers.
       </p>
       <p className="text-sm text-muted-foreground mb-4">
-        When the short term EMA crosses above the long term EMA, this is a sign
-        of an uptrend, which indicates a buy. Vise versa, when the short term
-        EMA crosses below the long term EMA, this is a sign of a downtrend,
-        which indicates a sell.
+        When the fast EMA crosses above the slow EMA, this is a sign of an
+        uptrend, which indicates a buy. Vise versa, when the fast EMA crosses
+        below the slow EMA, this is a sign of a downtrend, which indicates a
+        sell.
       </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">
@@ -144,7 +144,7 @@ const ExponentialMovingAverage = ({}) => {
       <div className="w-full mb-4 flex items-center gap-4 justify-between">
         <div className="flex items-center gap-2">
           <span className="h-10 py-2 text-md font-semibold">
-            Short Term Window:
+            Fast EMA Window:
           </span>
           <Input
             type="text"
@@ -159,7 +159,7 @@ const ExponentialMovingAverage = ({}) => {
         </div>
         <div className="flex items-center gap-2">
           <span className="h-10 py-2 text-md font-semibold">
-            Long Term Window:
+            Slow EMA Window:
           </span>
           <Input
             type="text"

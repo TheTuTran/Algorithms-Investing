@@ -127,10 +127,10 @@ const MovingAverage = ({}) => {
         when to buy and sell stock based on crossovers.
       </p>
       <p className="text-sm text-muted-foreground mb-4">
-        When the short term SMA crosses above the long term SMA, this is a sign
-        of an uptrend, which indicates a buy. Vise versa, when the short term
-        SMA crosses below the long term SMA, this is a sign of a downtrend,
-        which indicates a sell.
+        When the fast SMA crosses above the slow SMA, this is a sign of an
+        uptrend, which indicates a buy. Vise versa, when the fast SMA crosses
+        below the slow SMA, this is a sign of a downtrend, which indicates a
+        sell.
       </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">
@@ -146,7 +146,7 @@ const MovingAverage = ({}) => {
       <div className="w-full mb-4 flex items-center gap-2 justify-between">
         <div className="flex items-center gap-2">
           <span className="h-10 py-2 text-sm font-semibold">
-            Short Term Window:
+            Fast SMA Window:
           </span>
           <Input
             type="text"
@@ -161,7 +161,7 @@ const MovingAverage = ({}) => {
         </div>
         <div className="flex items-center gap-2">
           <span className="h-10 py-2 text-sm font-semibold">
-            Long Term Window:
+            Slow SMA Window:
           </span>
           <Input
             type="text"

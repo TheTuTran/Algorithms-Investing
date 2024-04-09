@@ -132,7 +132,6 @@ export function DataTable<TData, TValue>({
                       if (!strategyType) {
                         return;
                       }
-                      console.log(strategyType);
                       const signals = generateMovingAverageSignals(
                         dates,
                         closingPrices,
