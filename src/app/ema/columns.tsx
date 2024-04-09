@@ -6,25 +6,25 @@ import { DataTableColumnHeader } from "@/components/data-table-column-header";
 
 export const columns: ColumnDef<MA_AnalysisResult>[] = [
   {
-    accessorKey: "shortMA",
+    accessorKey: "fastMA",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Short EMA Period" />
     ),
     cell: ({ row }) => {
-      const shortMA = row.getValue("shortMA");
+      const fastMA = row.getValue("fastMA");
 
-      return <div>{shortMA as React.ReactNode}</div>;
+      return <div>{fastMA as React.ReactNode}</div>;
     },
   },
   {
-    accessorKey: "longMA",
+    accessorKey: "slowMA",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Long EMA Period" />
     ),
     cell: ({ row }) => {
-      const longMA = row.getValue("longMA");
+      const slowMA = row.getValue("slowMA");
 
-      return <div>{longMA as React.ReactNode}</div>;
+      return <div>{slowMA as React.ReactNode}</div>;
     },
   },
   {

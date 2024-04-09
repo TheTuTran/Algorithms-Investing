@@ -96,6 +96,18 @@ const StochasticMA = ({}) => {
     try {
       const fetchedData = await fetchChartData(symbol, period1, period2, "1d");
       localStorage.setItem("fetchedData", JSON.stringify(fetchedData));
+      localStorage.setItem(
+        "stochasticPeriod",
+        JSON.stringify(stochasticPeriod)
+      );
+      localStorage.setItem(
+        "oversoldStochastic",
+        JSON.stringify(oversoldStochastic)
+      );
+      localStorage.setItem(
+        "overboughtStochastic",
+        JSON.stringify(overboughtStochastic)
+      );
       if (fetchedData) {
         const dates = fetchedData.map((entry) => entry.date);
         const closingPrices = fetchedData.map((entry) => entry.close);
@@ -144,8 +156,8 @@ const StochasticMA = ({}) => {
           true,
           strategyType,
           stochastic,
-          oversoldStochastic,
-          overboughtStochastic
+          overboughtStochastic,
+          oversoldStochastic
         );
         setSmaData(analysisResults);
         setCurName(Tickers_dict[symbol] || symbol);
