@@ -31,12 +31,8 @@ const Stochastic = ({}) => {
   const [considerLongEntries, setConsiderLongEntries] = useState(true);
   const [considerShortEntries, setConsiderShortEntries] = useState(false);
   const [stochasticPeriod, setStochasticPeriod] = useState<number | null>(null);
-  const [oversoldStochastic, setOversoldStochastic] = useState<number | null>(
-    null
-  );
-  const [overboughtStochastic, setOverboughtStochastic] = useState<
-    number | null
-  >(null);
+  const [oversoldStochastic, setOversoldStochastic] = useState("");
+  const [overboughtStochastic, setOverboughtStochastic] = useState("");
 
   const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
@@ -57,24 +53,6 @@ const Stochastic = ({}) => {
       return;
     }
 
-    // Validate stochastic
-    if (
-      oversoldStochastic < 0 ||
-      oversoldStochastic > 100 ||
-      overboughtStochastic < 0 ||
-      overboughtStochastic > 100 ||
-      stochasticPeriod <= 0
-    ) {
-      toast({
-        title: "Error",
-        description:
-          "One or some of the Stochastic inputs are out of acceptable range. Make sure your stochastic is within 0-100 and the period is greater than 0",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const fetchedData = await fetchChartData(symbol, period1, period2, "1d");
       localStorage.setItem("fetchedData", JSON.stringify(fetchedData));
@@ -82,14 +60,7 @@ const Stochastic = ({}) => {
         "stochasticPeriod",
         JSON.stringify(stochasticPeriod)
       );
-      localStorage.setItem(
-        "oversoldStochastic",
-        JSON.stringify(oversoldStochastic)
-      );
-      localStorage.setItem(
-        "overboughtStochastic",
-        JSON.stringify(overboughtStochastic)
-      );
+
       if (fetchedData) {
         const dates = fetchedData.map((entry) => entry.date);
         const closingPrices = fetchedData.map((entry) => entry.close);
@@ -186,14 +157,7 @@ const Stochastic = ({}) => {
             value={oversoldStochastic ?? ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const value = e.target.value;
-              if (value === "") {
-                setOversoldStochastic(null);
-              } else {
-                const numValue = Number(value);
-                if (!isNaN(numValue)) {
-                  setOversoldStochastic(numValue);
-                }
-              }
+              setOversoldStochastic(value);
             }}
             className="hover:border-blue-500 max-w-[163px]"
           />
@@ -208,14 +172,8 @@ const Stochastic = ({}) => {
             value={overboughtStochastic ?? ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const value = e.target.value;
-              if (value === "") {
-                setOverboughtStochastic(null);
-              } else {
-                const numValue = Number(value);
-                if (!isNaN(numValue)) {
-                  setOverboughtStochastic(numValue);
-                }
-              }
+
+              setOverboughtStochastic(value);
             }}
             className="hover:border-blue-500 max-w-[163px]"
           />
