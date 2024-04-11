@@ -126,11 +126,11 @@ const FindStocks = () => {
       </h1>
       <p className="text-sm text-muted-foreground mb-4">
         Symbol, Stock Name, and Sector is self explanatory. The date is the most
-        recent date of the oscillator crossing above the inputted Oversold
+        recent date of the oscillator crossing above the inputted oversold
         stochastic level. The stochastic oscillator is the derivative of the
         derivative of the oscillator with a 3 day sma period for each
         derivative. If a stock appears to have matched the following indicators,
-        then it will appear below with teh date that it happened. The indicator
+        then it will appear below with the date that it happened. The indicator
         is when the oscillator crosses above the oversold stochastic level with
         the fast SMA above the slow SMA.
       </p>
