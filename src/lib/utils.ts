@@ -208,6 +208,11 @@ export function generateMovingAverageSignals(
   return signals;
 }
 
+const parseRange = (range: string) => {
+  const [start, end] = range.split("-").map(Number);
+  return { start, end };
+};
+
 export function analyzeMovingAveragePerformance(
   date_data: Date[],
   data: number[],
@@ -216,24 +221,19 @@ export function analyzeMovingAveragePerformance(
   isSMA: boolean,
   strategyType: StrategyType
 ): MA_AnalysisResult[] {
-  const parseRange = (range: string) => {
-    const [start, end] = range.split("-").map(Number);
-    return { start, end };
-  };
-
-  const oversoldStochasticRangeParsed = parseRange(shortRange);
-  const overboughtRangeParsed = parseRange(longRange);
+  const shortRangeParsed = parseRange(shortRange);
+  const longRangeParsed = parseRange(longRange);
 
   const results: MA_AnalysisResult[] = [];
 
   for (
-    let short = oversoldStochasticRangeParsed.start;
-    short <= oversoldStochasticRangeParsed.end;
+    let short = shortRangeParsed.start;
+    short <= shortRangeParsed.end;
     short++
   ) {
     for (
-      let long = overboughtRangeParsed.start;
-      long <= overboughtRangeParsed.end;
+      let long = longRangeParsed.start;
+      long <= longRangeParsed.end;
       long++
     ) {
       if (short > long) continue;
@@ -464,52 +464,67 @@ export function analyzeStochasticPerformance(
   date_data: Date[],
   data: number[],
   stochastic: (number | null)[],
-  oversoldStochastic: number,
-  overboughtStochastic: number,
+  oversoldStochasticRange: string,
+  overboughtStochasticRange: string,
   strategyType: StrategyType
 ): Stoch_AnalysisResult[] {
   const results: Stoch_AnalysisResult[] = [];
+  const oversoldStochasticRangeParsed = parseRange(oversoldStochasticRange);
+  const overboughtRangeParsed = parseRange(overboughtStochasticRange);
+  for (
+    let oversoldStochastic = oversoldStochasticRangeParsed.start;
+    oversoldStochastic <= oversoldStochasticRangeParsed.end;
+    oversoldStochastic++
+  ) {
+    for (
+      let overboughtStochastic = overboughtRangeParsed.start;
+      overboughtStochastic <= overboughtRangeParsed.end;
+      overboughtStochastic++
+    ) {
+      if (oversoldStochastic > overboughtStochastic) continue;
 
-  const signals = generateStochasticSignals(
-    date_data,
-    data,
-    stochastic,
-    oversoldStochastic,
-    overboughtStochastic,
-    strategyType
-  );
-  const positions = signals
-    .map((signal) => signal.positions)
-    .filter((pos) => pos !== null);
+      const signals = generateStochasticSignals(
+        date_data,
+        data,
+        stochastic,
+        oversoldStochastic,
+        overboughtStochastic,
+        strategyType
+      );
+      const positions = signals
+        .map((signal) => signal.positions)
+        .filter((pos) => pos !== null);
 
-  let numberOfTrades;
+      let numberOfTrades;
 
-  switch (strategyType) {
-    case StrategyType.Buying:
-      numberOfTrades = positions.filter((pos) => pos === 1).length;
-      break;
-    case StrategyType.Shorting:
-      numberOfTrades = positions.filter((pos) => pos === -1).length;
-      break;
-    case StrategyType.Both:
-      numberOfTrades = positions.filter(
-        (pos) => pos === 1 || pos === -1
+      switch (strategyType) {
+        case StrategyType.Buying:
+          numberOfTrades = positions.filter((pos) => pos === 1).length;
+          break;
+        case StrategyType.Shorting:
+          numberOfTrades = positions.filter((pos) => pos === -1).length;
+          break;
+        case StrategyType.Both:
+          numberOfTrades = positions.filter(
+            (pos) => pos === 1 || pos === -1
+          ).length;
+          break;
+      }
+      let profitableTrades = signals.filter(
+        (signal) => signal.signalProfit !== null && signal.signalProfit > 0
       ).length;
-      break;
+      const winPercentage =
+        numberOfTrades > 0 ? (profitableTrades / numberOfTrades) * 100 : 0;
+      const cumulativeProfit = signals[signals.length - 1].cumulativeProfit;
+      results.push({
+        oversoldStoch: oversoldStochastic,
+        overboughtStoch: overboughtStochastic,
+        cumulativeProfit,
+        winPercentage,
+        numberOfTrades,
+      });
+    }
   }
-  let profitableTrades = signals.filter(
-    (signal) => signal.signalProfit !== null && signal.signalProfit > 0
-  ).length;
-  const winPercentage =
-    numberOfTrades > 0 ? (profitableTrades / numberOfTrades) * 100 : 0;
-  const cumulativeProfit = signals[signals.length - 1].cumulativeProfit;
-  results.push({
-    oversoldStoch: oversoldStochastic,
-    overboughtStoch: overboughtStochastic,
-    cumulativeProfit,
-    winPercentage,
-    numberOfTrades,
-  });
 
   return results;
 }
