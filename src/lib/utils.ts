@@ -36,7 +36,7 @@ export function getFormattedDates() {
   };
 }
 
-function calculateSma(
+export function calculateSma(
   data: (number | null)[],
   period: number
 ): (number | null)[] {
