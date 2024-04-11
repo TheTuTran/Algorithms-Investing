@@ -2,9 +2,9 @@
 
 import { FC } from "react";
 import {
-  TRADE_OPPORTUNITIES_ALGORITHMS_LINKS,
+  DAILY_TRADE_OPPORTUNITIES_ALGORITHMS_LINKS,
   OTHER_LINKS,
-  MOMENTUM_ALGORITHMS_LINKS,
+  WORK_IN_PROGRESS,
 } from "@/lib/consts/navigation";
 
 interface SidebarProps {}
@@ -22,12 +22,12 @@ const Sidebar: FC<SidebarProps> = ({}) => {
               <div>
                 {[
                   {
-                    header: "Find Trade Opportunities",
-                    items: TRADE_OPPORTUNITIES_ALGORITHMS_LINKS,
+                    header: "Find Daily Trade Opportunities",
+                    items: DAILY_TRADE_OPPORTUNITIES_ALGORITHMS_LINKS,
                   },
                   {
-                    header: "Find Trend Strengths",
-                    items: MOMENTUM_ALGORITHMS_LINKS,
+                    header: "Work In Progress",
+                    items: WORK_IN_PROGRESS,
                   },
                   { header: "Others", items: OTHER_LINKS },
                 ].map((section) => (

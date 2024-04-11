@@ -29,10 +29,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/table-dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogDataTable } from "../../components/ma-dialog-component/dialog-data-table";
-import { dialogue_columns } from "../../components/ma-dialog-component/sma-dialog-columns";
-import { MA_Signal, MA_AnalysisResult, StrategyType, Quote } from "@/lib/types";
-import { generateMovingAverageSignals } from "@/lib/utils";
+import { DialogDataTable } from "../../components/dialog-component/dialog-data-table";
+import { dialogue_columns } from "../../components/dialog-component/stoch-dialog-columns";
+import {
+  Stoch_Signal,
+  Stoch_AnalysisResult,
+  StrategyType,
+  Quote,
+} from "@/lib/types";
+import { calculateStochastic, generateStochasticSignals } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -46,9 +51,9 @@ export function DataTable<TData, TValue>({
   isLoading,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [smaData, setSmaData] = React.useState<MA_Signal[]>([]);
-  const [selectedShortSma, setSelectedShortSma] = React.useState<number>(0);
-  const [selectedLongSma, setSelectedLongSma] = React.useState<number>(0);
+  const [stochData, setStochData] = React.useState<Stoch_Signal[]>([]);
+  const [oversoldStoch, setOversoldStoch] = React.useState<number>(0);
+  const [overboughtStoch, setOverboughtStoch] = React.useState<number>(0);
   const table = useReactTable({
     data,
     columns,
@@ -101,12 +106,16 @@ export function DataTable<TData, TValue>({
                       const closingPrices = parsedData.map(
                         (entry) => entry.close
                       );
-                      const shortSma = (row.original as MA_AnalysisResult)
-                        .shortMA;
-                      const longSma = (row.original as MA_AnalysisResult)
-                        .longMA;
-                      setSelectedShortSma(shortSma);
-                      setSelectedLongSma(longSma);
+                      const highPrices = parsedData.map((entry) => entry.high);
+                      const lowPrices = parsedData.map((entry) => entry.low);
+                      const oversoldStoch = (
+                        row.original as Stoch_AnalysisResult
+                      ).oversoldStoch;
+                      const overboughtStoch = (
+                        row.original as Stoch_AnalysisResult
+                      ).overboughtStoch;
+                      setOversoldStoch(oversoldStoch);
+                      setOverboughtStoch(overboughtStoch);
 
                       const considerLongEntries = localStorage.getItem(
                         "considerLongEntries"
@@ -132,16 +141,24 @@ export function DataTable<TData, TValue>({
                       if (!strategyType) {
                         return;
                       }
+                      const stochasticPeriod =
+                        localStorage.getItem("stochasticPeriod");
+                      const stochastic = calculateStochastic(
+                        closingPrices,
+                        highPrices,
+                        lowPrices,
+                        Number(stochasticPeriod)
+                      );
 
-                      const signals = generateMovingAverageSignals(
+                      const signals = generateStochasticSignals(
                         dates,
                         closingPrices,
-                        shortSma,
-                        longSma,
-                        true,
+                        stochastic,
+                        oversoldStoch,
+                        overboughtStoch,
                         strategyType
                       );
-                      setSmaData(signals.reverse());
+                      setStochData(signals.reverse());
                     } else {
                       console.error(
                         "No fetched data available in localStorage."
@@ -188,10 +205,10 @@ export function DataTable<TData, TValue>({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {`Table with ${selectedShortSma} day SMA for Short and ${selectedLongSma} day SMA for Long`}
+              {`Table with ${oversoldStoch} for oversold Stochastic and ${overboughtStoch} for overbought Stochastic`}
             </DialogTitle>
             <DialogDescription>
-              <DialogDataTable columns={dialogue_columns} data={smaData} />
+              <DialogDataTable columns={dialogue_columns} data={stochData} />
             </DialogDescription>
           </DialogHeader>
         </DialogContent>

@@ -29,8 +29,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/table-dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogDataTable } from "../../components/ma-dialog-component/dialog-data-table";
-import { dialogue_columns } from "../../components/ma-dialog-component/ema-dialog-columns";
+import { DialogDataTable } from "../../components/dialog-component/dialog-data-table";
+import { dialogue_columns } from "../../components/dialog-component/ema-dialog-columns";
 import { MA_Signal, MA_AnalysisResult, StrategyType, Quote } from "@/lib/types";
 import { generateMovingAverageSignals } from "@/lib/utils";
 

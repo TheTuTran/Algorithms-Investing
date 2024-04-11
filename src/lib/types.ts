@@ -82,6 +82,24 @@ export interface MA_AnalysisResult {
   numberOfTrades: number;
 }
 
+export interface Stoch_Signal {
+  date: Date;
+  price: number;
+  stochastic: number | null;
+  holding: number;
+  positions: number | null;
+  signalProfit: number | null;
+  cumulativeProfit: number;
+}
+
+export interface Stoch_AnalysisResult {
+  oversoldStoch: number;
+  overboughtStoch: number;
+  cumulativeProfit: number;
+  winPercentage: number;
+  numberOfTrades: number;
+}
+
 export enum StrategyType {
   Buying = "buying",
   Shorting = "shorting",

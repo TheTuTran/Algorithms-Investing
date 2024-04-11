@@ -1,6 +1,6 @@
 "use client";
 import {
-  analyzeMovingAveragePerformance,
+  analyzeStochasticPerformance,
   calculateStochastic,
   getFormattedDates,
 } from "@/lib/utils";
@@ -12,20 +12,20 @@ import { useChartData } from "@/hooks/useChartData";
 import { Tickers_dict } from "@/lib/data/tickers_dict";
 import StockSearchForm from "@/components/stock-search-form";
 import { Input } from "@/components/ui/input";
-import { MA_AnalysisResult, StrategyType } from "@/lib/types";
+import { Stoch_AnalysisResult, StrategyType } from "@/lib/types";
 import { useToast } from "@/components/ui/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 
-const StochasticMA = ({}) => {
+const Stochastic = ({}) => {
   const { formattedToday, formattedLastYear } = getFormattedDates();
   const { fetchChartData } = useChartData();
   const [period1, setPeriod1] = useState(formattedLastYear);
   const [period2, setPeriod2] = useState(formattedToday);
   const [symbol, setSymbol] = useState("");
   const [curName, setCurName] = useState("");
-  const [shortTermWindow, setShortTermWindow] = useState("");
-  const [longTermWindow, setLongTermWindow] = useState("");
-  const [smaData, setSmaData] = useState<MA_AnalysisResult[]>([]);
+  const [stochasticData, setStochasticData] = useState<Stoch_AnalysisResult[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
   const [considerLongEntries, setConsiderLongEntries] = useState(true);
@@ -44,8 +44,6 @@ const StochasticMA = ({}) => {
     // Validate input contents
     if (
       symbol === "" ||
-      shortTermWindow === "" ||
-      longTermWindow === "" ||
       stochasticPeriod === null ||
       oversoldStochastic === null ||
       overboughtStochastic === null
@@ -53,22 +51,6 @@ const StochasticMA = ({}) => {
       toast({
         title: "Error",
         description: "All fields are required.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    // Validate shortTermWindow and longTermWindow format ("number-number")
-    const windowFormatRegex = /^\d+-\d+$/;
-    if (
-      !windowFormatRegex.test(shortTermWindow) ||
-      !windowFormatRegex.test(longTermWindow)
-    ) {
-      toast({
-        title: "Error",
-        description:
-          "The window format is incorrect. Please use the 'number-number' format.",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -130,27 +112,28 @@ const StochasticMA = ({}) => {
         const highPrices = fetchedData.map((entry) => entry.high);
         const lowPrices = fetchedData.map((entry) => entry.low);
         const stochastic = calculateStochastic(
+          closingPrices,
           highPrices,
           lowPrices,
-          closingPrices,
           stochasticPeriod
         );
-
-        const analysisResults = analyzeMovingAveragePerformance(
+        localStorage.setItem(
+          "stochasticPeriod",
+          JSON.stringify(stochasticPeriod)
+        );
+        const analysisResults = analyzeStochasticPerformance(
           dates,
           closingPrices,
-          shortTermWindow,
-          longTermWindow,
-          true,
-          strategyType,
           stochastic,
           oversoldStochastic,
-          overboughtStochastic
+          overboughtStochastic,
+          strategyType
         );
-        setSmaData(analysisResults);
+
+        setStochasticData(analysisResults);
         setCurName(Tickers_dict[symbol] || symbol);
       } else {
-        setSmaData([]);
+        setStochasticData([]);
       }
     } catch (error) {
       console.error("Error fetching stock data: ", error);
@@ -162,23 +145,12 @@ const StochasticMA = ({}) => {
   return (
     <div className="flex flex-col mt-8">
       <h1 className="text-2xl font-bold mb-4">
-        Moving Average Indicators Based on a Stochastic
+        Find Indicators Based on a Stochastic crossover
       </h1>
       <p className="text-sm text-muted-foreground mb-4">
-        When the fast SMA crosses above the slow SMA with a stochastic below the
-        oversold Stochastic percentage, this is an indicator to buy. Vise versa,
-        when the fast SMA crosses below the slow SMA with a stochastic above the
-        overbought Stochastic percentage, this is an indicator to sell.
-      </p>
-      <p className="text-sm text-muted-foreground mb-4">
-        Find a simpler version of the SMA crossover{" "}
-        <a
-          className="text-slate-600 hover:text-slate-700 hover:underline"
-          href="/ma"
-        >
-          here
-        </a>{" "}
-        without additional indicators
+        When the stochastic crosses above the oversold level and back down,
+        it'll indicate a buy signal. When the stochastic crosses below the
+        oversold level and back up, it'll indicate a sell signal.
       </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">
@@ -202,7 +174,14 @@ const StochasticMA = ({}) => {
             value={oversoldStochastic ?? ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const value = e.target.value;
-              setOversoldStochastic(value ? Number(value) : null);
+              if (value === "") {
+                setOversoldStochastic(null);
+              } else {
+                const numValue = Number(value);
+                if (!isNaN(numValue)) {
+                  setOversoldStochastic(numValue);
+                }
+              }
             }}
             className="hover:border-blue-500 max-w-[163px]"
           />
@@ -217,7 +196,14 @@ const StochasticMA = ({}) => {
             value={overboughtStochastic ?? ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const value = e.target.value;
-              setOverboughtStochastic(value ? Number(value) : null);
+              if (value === "") {
+                setOverboughtStochastic(null);
+              } else {
+                const numValue = Number(value);
+                if (!isNaN(numValue)) {
+                  setOverboughtStochastic(numValue);
+                }
+              }
             }}
             className="hover:border-blue-500 max-w-[163px]"
           />
@@ -232,44 +218,21 @@ const StochasticMA = ({}) => {
             value={stochasticPeriod ?? ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const value = e.target.value;
-              setStochasticPeriod(value ? Number(value) : null);
+              if (value === "") {
+                setStochasticPeriod(null);
+              } else {
+                const numValue = Number(value);
+                if (!isNaN(numValue)) {
+                  setStochasticPeriod(numValue);
+                }
+              }
             }}
             className="hover:border-blue-500 max-w-[163px]"
           />
         </div>
       </div>
       <div className="w-full mb-4 flex items-center gap-2 justify-between">
-        <div className="flex items-center gap-2">
-          <span className="h-10 py-2 text-sm font-semibold">
-            Fast SMA Window:
-          </span>
-          <Input
-            type="text"
-            placeholder="Fast (e.g. 1-10)"
-            value={shortTermWindow}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              const value = e.target.value;
-              setShortTermWindow(value);
-            }}
-            className="hover:border-blue-500 max-w-[180px]"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="h-10 py-2 text-sm font-semibold">
-            Slow SMA Window:
-          </span>
-          <Input
-            type="text"
-            placeholder="Slow (e.g., 10-50)"
-            value={longTermWindow}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              const value = e.target.value;
-              setLongTermWindow(value);
-            }}
-            className="hover:border-blue-500 max-w-[180px]"
-          />
-        </div>
-        <div>
+        <div className="ml-auto mr-4">
           <div className="flex items-center space-x-2 py-1">
             <Checkbox
               id="considerLongEntries"
@@ -301,15 +264,20 @@ const StochasticMA = ({}) => {
             </label>
           </div>
         </div>
+
         <Button onClick={handleSubmit} className="btn btn-primary self-start">
           Fetch
         </Button>
       </div>
       <div className="w-full">
-        <DataTable isLoading={isLoading} columns={columns} data={smaData} />
+        <DataTable
+          isLoading={isLoading}
+          columns={columns}
+          data={stochasticData}
+        />
       </div>
     </div>
   );
 };
 
-export default StochasticMA;
+export default Stochastic;

@@ -1,30 +1,30 @@
 "use client";
 
-import { MA_AnalysisResult } from "@/lib/types";
+import { Stoch_AnalysisResult } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 
-export const columns: ColumnDef<MA_AnalysisResult>[] = [
+export const columns: ColumnDef<Stoch_AnalysisResult>[] = [
   {
-    accessorKey: "shortMA",
+    accessorKey: "oversoldStoch",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Fast SMA Period" />
+      <DataTableColumnHeader column={column} title="Oversold Stoch Lv" />
     ),
     cell: ({ row }) => {
-      const shortMA = row.getValue("shortMA");
+      const oversoldStoch = row.getValue("oversoldStoch");
 
-      return <div>{shortMA as React.ReactNode}</div>;
+      return <div>{oversoldStoch as React.ReactNode}</div>;
     },
   },
   {
-    accessorKey: "longMA",
+    accessorKey: "overboughtStoch",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Slow SMA Period" />
+      <DataTableColumnHeader column={column} title="Overbought Stoch Lv" />
     ),
     cell: ({ row }) => {
-      const longMA = row.getValue("longMA");
+      const overboughtStoch = row.getValue("overboughtStoch");
 
-      return <div>{longMA as React.ReactNode}</div>;
+      return <div>{overboughtStoch as React.ReactNode}</div>;
     },
   },
   {

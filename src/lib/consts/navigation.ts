@@ -1,4 +1,4 @@
-export const TRADE_OPPORTUNITIES_ALGORITHMS_LINKS = [
+export const DAILY_TRADE_OPPORTUNITIES_ALGORITHMS_LINKS = [
   {
     title: "Moving Average Crossover",
     href: "ma",
@@ -8,20 +8,16 @@ export const TRADE_OPPORTUNITIES_ALGORITHMS_LINKS = [
     href: "ema",
   },
   {
-    title: "Stochastic Moving Average Crossover (Work in Progress)",
-    href: "stochastic-ma",
+    title: "Stochastic Crossover",
+    href: "stochastic",
   },
   {
-    title: "ACD System (Work in Progress)",
-    href: "acd-system",
-  },
-  {
-    title: "Floor Pivots (Work in Progress)",
-    href: "floor-pivots",
+    title: "Find Stocks with Indicators",
+    href: "find-stocks",
   },
 ];
 
-export const MOMENTUM_ALGORITHMS_LINKS = [
+export const WORK_IN_PROGRESS = [
   {
     title: "%K Stochastic Oscillator (Work in Progress)",
     href: "k-stochastic",
@@ -33,6 +29,14 @@ export const MOMENTUM_ALGORITHMS_LINKS = [
   {
     title: "%R and RSI Momentum Oscillator (Work in Progress)",
     href: "%r-rsi",
+  },
+  {
+    title: "ACD System (Work in Progress)",
+    href: "acd-system",
+  },
+  {
+    title: "Floor Pivots (Work in Progress)",
+    href: "floor-pivots",
   },
 ];
 

@@ -1,7 +1,13 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import yahooFinance from "yahoo-finance2";
-import { MA_Signal, MA_AnalysisResult, StrategyType } from "./types";
+import {
+  MA_Signal,
+  MA_AnalysisResult,
+  StrategyType,
+  Stoch_Signal,
+  Stoch_AnalysisResult,
+} from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -30,15 +36,25 @@ export function getFormattedDates() {
   };
 }
 
-function calculateSma(data: number[], period: number) {
+function calculateSma(
+  data: (number | null)[],
+  period: number
+): (number | null)[] {
   let sma: (number | null)[] = new Array(data.length).fill(null);
 
   for (let i = period - 1; i < data.length; i++) {
     let sum = 0;
+    let count = 0;
     for (let j = 0; j < period; j++) {
-      sum += data[i - j];
+      if (data[i - j] !== null) {
+        sum += data[i - j]!;
+        count++;
+      }
     }
-    sma[i] = sum / period;
+
+    if (count === period) {
+      sma[i] = sum / period;
+    }
   }
 
   return sma;
@@ -61,51 +77,13 @@ function calculateEma(data: number[], period: number) {
   return ema;
 }
 
-export function calculateStochastic(
-  close: number[],
-  high: number[],
-  low: number[],
-  period: number
-): number[] {
-  // Initialize the array for %K values
-  let percentK: number[] = [];
-
-  // Start the loop from the point where the first calculation is possible
-  for (let i = period - 1; i < close.length; i++) {
-    // Find the highest high and the lowest low in the last `period` candles
-    let periodHighs = high.slice(i - period + 1, i + 1);
-    let periodLows = low.slice(i - period + 1, i + 1);
-    let highestHigh = Math.max(...periodHighs);
-    let lowestLow = Math.min(...periodLows);
-
-    // Calculate %K using the formula
-    let currentClose = close[i];
-
-    // Handle the case where highestHigh somehow equals lowestLow to avoid division by zero
-    if (highestHigh === lowestLow) {
-      percentK.push(0);
-    } else {
-      let kValue =
-        ((currentClose - lowestLow) / (highestHigh - lowestLow)) * 100;
-      percentK.push(kValue);
-    }
-  }
-
-  let initialNulls = new Array(period - 1).fill(null);
-
-  return [...initialNulls, ...percentK];
-}
-
 export function generateMovingAverageSignals(
   date_data: Date[],
   data: number[],
   fastSignal: number,
   slowSignal: number,
   isSMA: boolean,
-  strategyType: StrategyType,
-  stochastic?: number[],
-  overboughtLevel?: number,
-  oversoldLevel?: number
+  strategyType: StrategyType
 ): MA_Signal[] {
   const signals: MA_Signal[] = data.map((price, index) => ({
     date: date_data[index],
@@ -125,56 +103,20 @@ export function generateMovingAverageSignals(
     ? calculateSma(data, slowSignal)
     : calculateEma(data, slowSignal);
 
-  // This is the logic to see if holding long or short position or none
-  if (stochastic) {
-    signals.forEach((signal, index) => {
-      signal.shortMA = shortMAs[index];
-      signal.longMA = longMAs[index];
-      const stochCondition =
-        overboughtLevel &&
-        oversoldLevel &&
-        stochastic &&
-        stochastic[index] !== undefined;
+  signals.forEach((signal, index) => {
+    signal.shortMA = shortMAs[index];
+    signal.longMA = longMAs[index];
 
-      if (signal.shortMA !== null && signal.longMA !== null && stochCondition) {
-        if (
-          stochastic[index] > overboughtLevel &&
-          signal.shortMA < signal.longMA
-        ) {
-          // MA indicates sell, but Stochastic indicates overbought - do nothing or consider selling if your strategy allows
-          signal.holding = -1;
-        } else if (
-          stochastic[index] < oversoldLevel &&
-          signal.shortMA > signal.longMA
-        ) {
-          // MA indicates buy, but Stochastic indicates oversold - do nothing or consider buying if your strategy allows
-          signal.holding = 1;
-        } else if (
-          stochastic[index] <= overboughtLevel &&
-          stochastic[index] >= oversoldLevel
-        ) {
-          // Stochastic is neutral, follow the MA signal
-          signal.holding = 0;
-        }
-      }
-    });
-  } else {
-    console.log("no stochastic exist doing just MA thing");
-    signals.forEach((signal, index) => {
-      signal.shortMA = shortMAs[index];
-      signal.longMA = longMAs[index];
-
-      if (signal.shortMA !== null && signal.longMA !== null) {
-        // Stochastic not applicable, follow the MA signal
-        signal.holding =
-          signal.shortMA > signal.longMA
-            ? 1
-            : signal.shortMA < signal.longMA
-            ? -1
-            : 0;
-      }
-    });
-  }
+    if (signal.shortMA !== null && signal.longMA !== null) {
+      // Stochastic not applicable, follow the MA signal
+      signal.holding =
+        signal.shortMA > signal.longMA
+          ? 1
+          : signal.shortMA < signal.longMA
+          ? -1
+          : 0;
+    }
+  });
 
   // Position represents buying or selling a stock
   for (let i = 1; i < signals.length; i++) {
@@ -272,32 +214,29 @@ export function analyzeMovingAveragePerformance(
   shortRange: string,
   longRange: string,
   isSMA: boolean,
-  strategyType: StrategyType,
-  stochastic?: number[],
-  overboughtLevel?: number,
-  oversoldLevel?: number
+  strategyType: StrategyType
 ): MA_AnalysisResult[] {
   const parseRange = (range: string) => {
     const [start, end] = range.split("-").map(Number);
     return { start, end };
   };
 
-  const shortRangeParsed = parseRange(shortRange);
-  const longRangeParsed = parseRange(longRange);
+  const oversoldStochasticRangeParsed = parseRange(shortRange);
+  const overboughtRangeParsed = parseRange(longRange);
 
   const results: MA_AnalysisResult[] = [];
 
   for (
-    let short = shortRangeParsed.start;
-    short <= shortRangeParsed.end;
+    let short = oversoldStochasticRangeParsed.start;
+    short <= oversoldStochasticRangeParsed.end;
     short++
   ) {
     for (
-      let long = longRangeParsed.start;
-      long <= longRangeParsed.end;
+      let long = overboughtRangeParsed.start;
+      long <= overboughtRangeParsed.end;
       long++
     ) {
-      if (short >= long) continue;
+      if (short > long) continue;
 
       const signals = generateMovingAverageSignals(
         date_data,
@@ -305,10 +244,7 @@ export function analyzeMovingAveragePerformance(
         short,
         long,
         isSMA,
-        strategyType,
-        stochastic,
-        overboughtLevel,
-        oversoldLevel
+        strategyType
       );
       const positions = signals
         .map((signal) => signal.positions)
@@ -344,5 +280,236 @@ export function analyzeMovingAveragePerformance(
       });
     }
   }
+  return results;
+}
+
+export function calculateStochastic(
+  close: number[],
+  high: number[],
+  low: number[],
+  period: number
+): (number | null)[] {
+  // Initialize the array for %K values
+  let percentK: number[] = [];
+
+  // Start the loop from the point where the first calculation is possible
+  for (let i = period - 1; i < close.length; i++) {
+    // Find the highest high and the lowest low in the last `period` candles
+    let periodHighs = high.slice(i - period + 1, i + 1);
+    let periodLows = low.slice(i - period + 1, i + 1);
+    let highestHigh = Math.max(...periodHighs);
+    let lowestLow = Math.min(...periodLows);
+
+    // Calculate %K using the formula
+    let currentClose = close[i];
+
+    // Handle the case where highestHigh somehow equals lowestLow to avoid division by zero
+    if (highestHigh === lowestLow) {
+      percentK.push(0);
+    } else {
+      let kValue =
+        ((currentClose - lowestLow) / (highestHigh - lowestLow)) * 100;
+      percentK.push(kValue);
+    }
+  }
+
+  let initialNulls = new Array(period - 1).fill(null);
+
+  const three_day_stoch_sma = calculateSma([...initialNulls, ...percentK], 3);
+  const three_day__sma_three_day_stoch_sma = calculateSma(
+    three_day_stoch_sma,
+    3
+  );
+
+  return three_day__sma_three_day_stoch_sma;
+}
+
+export function generateStochasticSignals(
+  date_data: Date[],
+  prices: number[],
+  stochasticVals: (number | null)[],
+  oversoldLevel: number,
+  overboughtLevel: number,
+  strategyType: StrategyType
+): Stoch_Signal[] {
+  const signals: Stoch_Signal[] = prices.map((price, index) => ({
+    date: date_data[index],
+    price,
+    stochastic: stochasticVals[index],
+    holding: 0,
+    positions: null,
+    signalProfit: null,
+    cumulativeProfit: 0,
+  }));
+
+  for (let i = 1; i < signals.length; i++) {
+    const currentStochastic = signals[i].stochastic;
+    const previousStochastic = signals[i - 1].stochastic;
+
+    // Reset holding initially
+    signals[i].holding = signals[i - 1].holding;
+
+    if (currentStochastic && previousStochastic) {
+      // Exit logic for buy positions
+      if (
+        currentStochastic >= overboughtLevel &&
+        signals[i - 1].holding === 1
+      ) {
+        signals[i].holding = 0;
+      }
+      // Exit logic for sell positions
+      else if (
+        currentStochastic <= oversoldLevel &&
+        signals[i - 1].holding === 2
+      ) {
+        signals[i].holding = 0;
+      }
+
+      // Entry logic for buy positions
+      if (
+        currentStochastic > oversoldLevel &&
+        previousStochastic <= oversoldLevel
+      ) {
+        signals[i].holding = 1;
+      }
+      // Entry logic for sell positions
+      else if (
+        currentStochastic < overboughtLevel &&
+        previousStochastic >= overboughtLevel
+      ) {
+        signals[i].holding = 2;
+      }
+    }
+  }
+
+  for (let i = 1; i < signals.length; i++) {
+    if (signals[i].holding !== signals[i - 1].holding) {
+      if (signals[i - 1].holding === 1) {
+        signals[i].positions = -1;
+      } else if (signals[i - 1].holding === 2) {
+        signals[i].positions = -2;
+      } else {
+        signals[i].positions = signals[i].holding;
+      }
+    }
+  }
+
+  let cumulativeProfit = 0;
+  let positionEntryPrice: number | null = null;
+
+  signals.forEach((signal, index) => {
+    switch (strategyType) {
+      case StrategyType.Buying:
+        if (signal.positions === 1) {
+          // Enter buy position
+          positionEntryPrice = signal.price;
+        } else if (signal.positions === -1 && positionEntryPrice !== null) {
+          // Exit buy position
+          const sellPrice = signal.price;
+          const profit = sellPrice - positionEntryPrice;
+          signal.signalProfit = profit;
+          positionEntryPrice = null;
+          cumulativeProfit += profit;
+        }
+        break;
+
+      case StrategyType.Shorting:
+        if (signal.positions === 2) {
+          // Enter short position
+          positionEntryPrice = signal.price;
+        } else if (signal.positions === -2 && positionEntryPrice !== null) {
+          // Exit short position
+          const coverPrice = signal.price;
+          const profit = positionEntryPrice - coverPrice;
+          signal.signalProfit = profit;
+          positionEntryPrice = null;
+          cumulativeProfit += profit;
+        }
+        break;
+
+      case StrategyType.Both:
+        if (signal.positions === 1) {
+          // Enter buy position
+          positionEntryPrice = signal.price;
+        } else if (signal.positions === -1 && positionEntryPrice !== null) {
+          // Exit buy position
+          const sellPrice = signal.price;
+          const profit = sellPrice - positionEntryPrice;
+          signal.signalProfit = profit;
+          positionEntryPrice = null;
+          cumulativeProfit += profit;
+        }
+        if (signal.positions === 2) {
+          // Enter short position
+          positionEntryPrice = signal.price;
+        } else if (signal.positions === -2 && positionEntryPrice !== null) {
+          // Exit short position
+          const coverPrice = signal.price;
+          const profit = positionEntryPrice - coverPrice;
+          signal.signalProfit = profit;
+          positionEntryPrice = null;
+          cumulativeProfit += profit;
+        }
+
+        break;
+    }
+
+    signal.cumulativeProfit = cumulativeProfit;
+  });
+
+  return signals;
+}
+
+export function analyzeStochasticPerformance(
+  date_data: Date[],
+  data: number[],
+  stochastic: (number | null)[],
+  oversoldStochastic: number,
+  overboughtStochastic: number,
+  strategyType: StrategyType
+): Stoch_AnalysisResult[] {
+  const results: Stoch_AnalysisResult[] = [];
+
+  const signals = generateStochasticSignals(
+    date_data,
+    data,
+    stochastic,
+    oversoldStochastic,
+    overboughtStochastic,
+    strategyType
+  );
+  const positions = signals
+    .map((signal) => signal.positions)
+    .filter((pos) => pos !== null);
+
+  let numberOfTrades;
+
+  switch (strategyType) {
+    case StrategyType.Buying:
+      numberOfTrades = positions.filter((pos) => pos === 1).length;
+      break;
+    case StrategyType.Shorting:
+      numberOfTrades = positions.filter((pos) => pos === -1).length;
+      break;
+    case StrategyType.Both:
+      numberOfTrades = positions.filter(
+        (pos) => pos === 1 || pos === -1
+      ).length;
+      break;
+  }
+  let profitableTrades = signals.filter(
+    (signal) => signal.signalProfit !== null && signal.signalProfit > 0
+  ).length;
+  const winPercentage =
+    numberOfTrades > 0 ? (profitableTrades / numberOfTrades) * 100 : 0;
+  const cumulativeProfit = signals[signals.length - 1].cumulativeProfit;
+  results.push({
+    oversoldStoch: oversoldStochastic,
+    overboughtStoch: overboughtStochastic,
+    cumulativeProfit,
+    winPercentage,
+    numberOfTrades,
+  });
+
   return results;
 }

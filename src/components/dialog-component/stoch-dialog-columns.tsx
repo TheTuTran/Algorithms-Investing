@@ -1,10 +1,10 @@
 "use client";
 
-import { MA_Signal, StrategyType } from "@/lib/types";
+import { Stoch_Signal } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "../data-table-column-header";
 
-export const dialogue_columns: ColumnDef<MA_Signal>[] = [
+export const dialogue_columns: ColumnDef<Stoch_Signal>[] = [
   {
     accessorKey: "date",
     header: ({ column }) => (
@@ -24,25 +24,14 @@ export const dialogue_columns: ColumnDef<MA_Signal>[] = [
     },
   },
   {
-    accessorKey: "shortMA",
+    accessorKey: "stochastic",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Fast SMA" />
+      <DataTableColumnHeader column={column} title="Stochastic" />
     ),
     cell: ({ row }) => {
-      const shortMA = row.getValue("shortMA");
+      const stochastic = row.getValue("stochastic");
 
-      return <div>{shortMA as React.ReactNode}</div>;
-    },
-  },
-  {
-    accessorKey: "longMA",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Slow SMA" />
-    ),
-    cell: ({ row }) => {
-      const longMA = row.getValue("longMA");
-
-      return <div>{longMA as React.ReactNode}</div>;
+      return <div>{stochastic as React.ReactNode}</div>;
     },
   },
   {
@@ -59,7 +48,7 @@ export const dialogue_columns: ColumnDef<MA_Signal>[] = [
         <div>
           {holding === 1 && considerLongEntries === "true"
             ? "Long Position"
-            : holding === -1 && considerShortEntries === "true"
+            : holding === 2 && considerShortEntries === "true"
             ? "Short Position"
             : "No"}
         </div>
@@ -76,10 +65,14 @@ export const dialogue_columns: ColumnDef<MA_Signal>[] = [
 
       return (
         <div>
-          {positions == 1
-            ? "Buy"
-            : positions == -1
-            ? "Sell"
+          {positions === 1
+            ? "Buy Entry"
+            : positions === 2
+            ? "Sell Entry"
+            : positions === -1
+            ? "Buy Exit"
+            : positions === -2
+            ? "Sell Exit"
             : ("" as React.ReactNode)}
         </div>
       );
