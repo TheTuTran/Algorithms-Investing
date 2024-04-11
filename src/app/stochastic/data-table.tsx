@@ -101,17 +101,8 @@ export function DataTable<TData, TValue>({
                     const storedData = localStorage.getItem("fetchedData");
                     const storedStochasticPeriod =
                       localStorage.getItem("stochasticPeriod");
-                    const storedOversoldStochastic =
-                      localStorage.getItem("oversoldStochastic");
-                    const storedOverboughtStochastic = localStorage.getItem(
-                      "overboughtStochastic"
-                    );
-                    if (
-                      storedData &&
-                      storedStochasticPeriod &&
-                      storedOverboughtStochastic &&
-                      storedOversoldStochastic
-                    ) {
+
+                    if (storedData && storedStochasticPeriod) {
                       const parsedData: Quote[] = JSON.parse(storedData);
                       const dates = parsedData.map((entry) => entry.date);
                       const closingPrices = parsedData.map(

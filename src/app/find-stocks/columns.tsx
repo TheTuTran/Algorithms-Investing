@@ -12,7 +12,7 @@ export const columns: ColumnDef<{
   {
     accessorKey: "symbol",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Stock" />
+      <DataTableColumnHeader column={column} title="Symbol" />
     ),
     cell: ({ row }) => {
       const symbol = row.getValue("symbol");

@@ -31,15 +31,9 @@ const FindStocks = () => {
   >([]);
 
   const handleFetch = async () => {
+    setMatchingStock([]);
     setLoading(true);
     setProgress(0);
-
-    const results = [];
-    const larger_period =
-      Math.max(slowMA ?? 0, oversoldStochastic ?? 0, stochasticPeriod ?? 0) + 1;
-    const period1Date = new Date();
-    period1Date.setDate(period1Date.getDate() - larger_period);
-    console.log(period1Date);
 
     if (!slowMA || !fastMA || !stochasticPeriod || !oversoldStochastic) {
       toast({
@@ -47,8 +41,17 @@ const FindStocks = () => {
         description: "All fields are required.",
         variant: "destructive",
       });
+      setLoading(false);
       return;
     }
+
+    const results = [];
+    const larger_period =
+      Math.max(slowMA ?? 0, oversoldStochastic ?? 0, stochasticPeriod ?? 0) +
+      30;
+    const period1Date = new Date();
+    period1Date.setDate(period1Date.getDate() - larger_period * 2);
+    console.log(period1Date);
 
     for (let ticker of snp_array) {
       const symbol = ticker.Symbol;
@@ -78,14 +81,15 @@ const FindStocks = () => {
           );
 
           for (
-            let i = Math.max(fastMA, slowMA, stochasticPeriod);
-            i < closes.length;
-            i++
+            let i = closes.length;
+            i > Math.max(fastMA, slowMA, stochasticPeriod);
+            i--
           ) {
             if (
               fastSmaValues[i] !== null &&
               slowSmaValues[i] !== null &&
-              stochasticValues[i] !== null
+              stochasticValues[i] !== null &&
+              stochasticValues[i - 1] !== null
             ) {
               if (
                 fastSmaValues[i]! > slowSmaValues[i]! &&
@@ -93,6 +97,7 @@ const FindStocks = () => {
                 stochasticValues[i - 1]! < oversoldStochastic
               ) {
                 console.log(symbol);
+                console.log(stochasticValues);
                 results.push({
                   symbol,
                   security,
@@ -120,7 +125,18 @@ const FindStocks = () => {
         Find Stocks based on the following indicators
       </h1>
       <p className="text-sm text-muted-foreground mb-4">
-        Searched through {progress} out of 503
+        Symbol, Stock Name, and Sector is self explanatory. The date is the most
+        recent date of the oscillator crossing above the inputted Oversold
+        stochastic level. The stochastic oscillator is the derivative of the
+        derivative of the oscillator with a 3 day sma period for each
+        derivative. If a stock appears to have matched the following indicators,
+        then it will appear below with teh date that it happened. The indicator
+        is when the oscillator crosses above the oversold stochastic level with
+        the fast SMA above the slow SMA.
+      </p>
+
+      <p className="text-sm text-muted-foreground mb-4">
+        Searched through {progress} out of 503 Symbols
       </p>
       <hr className="mb-4" />
 
@@ -172,9 +188,7 @@ const FindStocks = () => {
       </div>
       <div className="w-full mb-4 flex items-center gap-6">
         <div className="flex items-center gap-2 ">
-          <span className="h-10 py-2 text-sm font-semibold ">
-            Fast SMA Window:
-          </span>
+          <span className="h-10 py-2 text-sm font-semibold ">Fast SMA:</span>
           <Input
             type="text"
             placeholder="Fast (e.g. 5, 10, 20, ...)"
@@ -194,9 +208,7 @@ const FindStocks = () => {
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-10 py-2 text-sm font-semibold">
-            Slow SMA Window:
-          </span>
+          <span className="h-10 py-2 text-sm font-semibold">Slow SMA:</span>
           <Input
             type="text"
             placeholder="Slow (e.g., 10, 20, 50, ...)"
