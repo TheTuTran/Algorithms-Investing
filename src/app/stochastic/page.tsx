@@ -160,9 +160,9 @@ const Stochastic = ({}) => {
         Find Indicators Based on a Stochastic crossover
       </h1>
       <p className="text-sm text-muted-foreground mb-4">
-        When the stochastic crosses above the oversold level and back down,
-        it'll indicate a buy signal. When the stochastic crosses below the
-        oversold level and back up, it'll indicate a sell signal.
+        When the stochastic crosses above the oversold level and back down, it
+        will indicate a buy signal. When the stochastic crosses below the
+        oversold level and back up, it will indicate a sell signal.
       </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">
