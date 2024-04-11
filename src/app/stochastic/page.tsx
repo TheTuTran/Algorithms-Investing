@@ -53,6 +53,22 @@ const Stochastic = ({}) => {
       return;
     }
 
+    // Validate shortTermWindow and longTermWindow format ("number-number")
+    const windowFormatRegex = /^\d+-\d+$/;
+    if (
+      !windowFormatRegex.test(oversoldStochastic) ||
+      !windowFormatRegex.test(overboughtStochastic)
+    ) {
+      toast({
+        title: "Error",
+        description:
+          "The window format is incorrect. Please use the 'number-number' format for the stochastic levels.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const fetchedData = await fetchChartData(symbol, period1, period2, "1d");
       localStorage.setItem("fetchedData", JSON.stringify(fetchedData));
@@ -153,7 +169,7 @@ const Stochastic = ({}) => {
           </span>
           <Input
             type="text"
-            placeholder="% (e.g., 20, 30, ...)"
+            placeholder="% (e.g., 10-30)"
             value={oversoldStochastic ?? ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const value = e.target.value;
@@ -168,7 +184,7 @@ const Stochastic = ({}) => {
           </span>
           <Input
             type="text"
-            placeholder="% (e.g., 80, 70, ...)"
+            placeholder="% (e.g., 70-90)"
             value={overboughtStochastic ?? ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const value = e.target.value;
