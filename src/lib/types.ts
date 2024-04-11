@@ -66,8 +66,8 @@ export interface StockData {
 export interface MA_Signal {
   date: Date;
   price: number;
-  shortMA: number | null;
-  longMA: number | null;
+  fastMA: number | null;
+  slowMA: number | null;
   holding: number;
   positions: number | null;
   signalProfit: number | null;
@@ -75,8 +75,8 @@ export interface MA_Signal {
 }
 
 export interface MA_AnalysisResult {
-  shortMA: number;
-  longMA: number;
+  fastMA: number;
+  slowMA: number;
   cumulativeProfit: number;
   winPercentage: number;
   numberOfTrades: number;

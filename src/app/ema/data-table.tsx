@@ -47,8 +47,8 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [emaData, setEmaData] = React.useState<MA_Signal[]>([]);
-  const [selectedShortEma, setSelectedShortEma] = React.useState<number>(0);
-  const [selectedLongEma, setSelectedLongEma] = React.useState<number>(0);
+  const [selectedFastEMA, setSelectedFastEMA] = React.useState<number>(0);
+  const [selectedSlowEMA, setSelectedSlowEMA] = React.useState<number>(0);
   const table = useReactTable({
     data,
     columns,
@@ -100,12 +100,12 @@ export function DataTable<TData, TValue>({
                       const closingPrices = parsedData.map(
                         (entry) => entry.close
                       );
-                      const shortEma = (row.original as MA_AnalysisResult)
-                        .shortMA;
-                      const longEma = (row.original as MA_AnalysisResult)
-                        .longMA;
-                      setSelectedShortEma(shortEma);
-                      setSelectedLongEma(longEma);
+                      const fastEMA = (row.original as MA_AnalysisResult)
+                        .fastMA;
+                      const slowEMA = (row.original as MA_AnalysisResult)
+                        .slowMA;
+                      setSelectedFastEMA(fastEMA);
+                      setSelectedSlowEMA(slowEMA);
 
                       const considerLongEntries = localStorage.getItem(
                         "considerLongEntries"
@@ -135,8 +135,8 @@ export function DataTable<TData, TValue>({
                       const signals = generateMovingAverageSignals(
                         dates,
                         closingPrices,
-                        shortEma,
-                        longEma,
+                        fastEMA,
+                        slowEMA,
                         false,
                         strategyType
                       );
@@ -188,7 +188,7 @@ export function DataTable<TData, TValue>({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {`Table with ${selectedShortEma} day EMA for Short and ${selectedLongEma} day EMA for Long`}
+              {`Table with ${selectedFastEMA} day EMA for Short and ${selectedSlowEMA} day EMA for Long`}
             </DialogTitle>
             <DialogDescription>
               <DialogDataTable columns={dialogue_columns} data={emaData} />

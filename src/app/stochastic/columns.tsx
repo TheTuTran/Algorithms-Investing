@@ -6,11 +6,16 @@ import { DataTableColumnHeader } from "@/components/data-table-column-header";
 
 export const columns: ColumnDef<Stoch_AnalysisResult>[] = [
   {
+<<<<<<< HEAD:src/app/stochastic/columns.tsx
     accessorKey: "oversoldStoch",
+=======
+    accessorKey: "fastMA",
+>>>>>>> 272a5c3d4bfb2430c9ef894ac02c243bc6b5e9c9:src/app/stochastic-ma/columns.tsx
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Oversold Stoch Lv" />
     ),
     cell: ({ row }) => {
+<<<<<<< HEAD:src/app/stochastic/columns.tsx
       const oversoldStoch = row.getValue("oversoldStoch");
 
       return <div>{oversoldStoch as React.ReactNode}</div>;
@@ -18,13 +23,28 @@ export const columns: ColumnDef<Stoch_AnalysisResult>[] = [
   },
   {
     accessorKey: "overboughtStoch",
+=======
+      const fastMA = row.getValue("fastMA");
+
+      return <div>{fastMA as React.ReactNode}</div>;
+    },
+  },
+  {
+    accessorKey: "slowMA",
+>>>>>>> 272a5c3d4bfb2430c9ef894ac02c243bc6b5e9c9:src/app/stochastic-ma/columns.tsx
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Overbought Stoch Lv" />
     ),
     cell: ({ row }) => {
+<<<<<<< HEAD:src/app/stochastic/columns.tsx
       const overboughtStoch = row.getValue("overboughtStoch");
 
       return <div>{overboughtStoch as React.ReactNode}</div>;
+=======
+      const slowMA = row.getValue("slowMA");
+
+      return <div>{slowMA as React.ReactNode}</div>;
+>>>>>>> 272a5c3d4bfb2430c9ef894ac02c243bc6b5e9c9:src/app/stochastic-ma/columns.tsx
     },
   },
   {

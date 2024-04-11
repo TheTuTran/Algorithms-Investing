@@ -24,25 +24,25 @@ export const dialogue_columns: ColumnDef<MA_Signal>[] = [
     },
   },
   {
-    accessorKey: "shortMA",
+    accessorKey: "fastMA",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Short EMA" />
     ),
     cell: ({ row }) => {
-      const shortMA = row.getValue("shortMA");
+      const fastMA = row.getValue("fastMA");
 
-      return <div>{shortMA as React.ReactNode}</div>;
+      return <div>{fastMA as React.ReactNode}</div>;
     },
   },
   {
-    accessorKey: "longMA",
+    accessorKey: "slowMA",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Long EMA" />
     ),
     cell: ({ row }) => {
-      const longMA = row.getValue("longMA");
+      const slowMA = row.getValue("slowMA");
 
-      return <div>{longMA as React.ReactNode}</div>;
+      return <div>{slowMA as React.ReactNode}</div>;
     },
   },
   {

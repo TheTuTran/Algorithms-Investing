@@ -88,31 +88,31 @@ export function generateMovingAverageSignals(
   const signals: MA_Signal[] = data.map((price, index) => ({
     date: date_data[index],
     price,
-    shortMA: null,
-    longMA: null,
+    fastMA: null,
+    slowMA: null,
     holding: 0,
     positions: null,
     signalProfit: null,
     cumulativeProfit: 0,
   }));
 
-  let shortMAs = isSMA
+  let fastMAs = isSMA
     ? calculateSma(data, fastSignal)
     : calculateEma(data, fastSignal);
-  let longMAs = isSMA
+  let slowMAs = isSMA
     ? calculateSma(data, slowSignal)
     : calculateEma(data, slowSignal);
 
   signals.forEach((signal, index) => {
-    signal.shortMA = shortMAs[index];
-    signal.longMA = longMAs[index];
+    signal.fastMA = fastMAs[index];
+    signal.slowMA = slowMAs[index];
 
-    if (signal.shortMA !== null && signal.longMA !== null) {
+    if (signal.fastMA !== null && signal.slowMA !== null) {
       // Stochastic not applicable, follow the MA signal
       signal.holding =
-        signal.shortMA > signal.longMA
+        signal.fastMA > signal.slowMA
           ? 1
-          : signal.shortMA < signal.longMA
+          : signal.fastMA < signal.slowMA
           ? -1
           : 0;
     }
@@ -272,8 +272,8 @@ export function analyzeMovingAveragePerformance(
         numberOfTrades > 0 ? (profitableTrades / numberOfTrades) * 100 : 0;
       const cumulativeProfit = signals[signals.length - 1].cumulativeProfit;
       results.push({
-        shortMA: short,
-        longMA: long,
+        fastMA: short,
+        slowMA: long,
         cumulativeProfit,
         winPercentage,
         numberOfTrades,
