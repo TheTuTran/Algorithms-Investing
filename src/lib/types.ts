@@ -12,19 +12,20 @@ interface CurrentTradingPeriod {
 }
 
 interface Meta {
+  chartPreviousClose: number;
   currency: string;
-  symbol: string;
-  exchangeName: string;
+  currentTradingPeriod: CurrentTradingPeriod;
   instrumentType: string;
   firstTradeDate: Date;
   regularMarketTime: Date;
   gmtoffset: number;
   timezone: string;
   exchangeTimezoneName: string;
+  regularMarketDayHigh: number;
+  regularMarketDayLow: number;
   regularMarketPrice: number;
-  chartPreviousClose: number;
+  regularMarketVolume: number;
   priceHint: number;
-  currentTradingPeriod: CurrentTradingPeriod;
   dataGranularity: string;
   range: string;
   validRanges: string[];
@@ -34,7 +35,7 @@ export interface Quote {
   date: Date;
   high: number;
   volume: number;
-  open: number;
+  open?: number;
   low: number;
   close: number;
   adjclose?: number;

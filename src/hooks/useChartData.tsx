@@ -30,7 +30,13 @@ export const useChartData = () => {
       });
       if (!response.ok) throw new Error("Network response was not ok");
       const data: StockData = await response.json();
-
+      data.quotes.push({
+        date: data.meta.regularMarketTime,
+        high: data.meta.regularMarketDayHigh,
+        volume: data.meta.regularMarketVolume,
+        low: data.meta.regularMarketDayLow,
+        close: data.meta.regularMarketPrice,
+      });
       setChartData(data.quotes);
       return data.quotes;
     } catch (error: any) {
