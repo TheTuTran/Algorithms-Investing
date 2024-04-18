@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const FindStocks = () => {
   const [loading, setLoading] = useState(false);
@@ -153,9 +154,6 @@ const FindStocks = () => {
         price above/below the inputted sma
       </p>
 
-      <p className="text-sm text-muted-foreground mb-4">
-        Searched through {progress} out of 503 Symbols
-      </p>
       <hr className="mb-4" />
 
       <div className="w-full mb-4 flex items-center gap-6">
@@ -192,7 +190,7 @@ const FindStocks = () => {
         </div>
         <div className="flex items-center gap-2">
           <span className="h-10 py-2 text-sm font-semibold">
-            Stochastic Period :
+            Stochastic Period
           </span>
           <Input
             type="text"
@@ -213,18 +211,18 @@ const FindStocks = () => {
           />
         </div>
       </div>
-      <div className="w-full mb-4 flex items-center gap-6">
-        <div className="flex items-center gap-2 ">
-          <span className="h-10 py-2 text-sm font-semibold ">
+      <div className="w-full mb-4 flex gap-6">
+        <div className="flex gap-2 ">
+          <span className="h-10 py-2 text-sm font-semibold pr-[4.34px]">
             When the closing price is
           </span>
           <Select onValueChange={(value) => setSmaDirection(value)}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Above SMA" />
+              <SelectValue placeholder="Above" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="above">Above SMA </SelectItem>
-              <SelectItem value="below">Below SMA </SelectItem>
+              <SelectItem value="above">Above </SelectItem>
+              <SelectItem value="below">Below </SelectItem>
             </SelectContent>
           </Select>
           <Input
@@ -246,7 +244,9 @@ const FindStocks = () => {
           />
         </div>
         <div className="flex items-center gap-2 ">
-          <span className="h-10 py-2 text-sm font-semibold ">Interval: </span>
+          <span className="h-10 py-2 text-sm font-semibold pr-[31.02px] ">
+            Time Interval
+          </span>
           <Select onValueChange={(value) => setInterval(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="1 Day" />
@@ -260,6 +260,75 @@ const FindStocks = () => {
             </SelectContent>
           </Select>
         </div>
+      </div>
+      <div className="w-full mb-4 flex gap-6">
+        <div className="flex gap-2 ">
+          <span className="h-10 py-2 text-sm font-semibold pr-[48.11px]">
+            When the MACD is
+          </span>
+          <Select onValueChange={(value) => setSmaDirection(value)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Above" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="above">Above </SelectItem>
+              <SelectItem value="below">Below </SelectItem>
+            </SelectContent>
+          </Select>
+          <Input
+            type="text"
+            placeholder="(WORK IN PROGRESS) Base line (e.g. -10, 0, 10, ...)"
+            value={smaValue ?? ""}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value;
+              if (value === "") {
+                setSmaValue(null);
+              } else {
+                const numValue = Number(value);
+                if (!isNaN(numValue)) {
+                  setSmaValue(numValue);
+                }
+              }
+            }}
+            className="hover:border-blue-500 max-w-[180px]"
+          />
+        </div>
+      </div>
+      <div className="w-full mb-4 flex gap-6">
+        <div className="flex gap-2">
+          <span className="h-10 py-2 text-sm font-semibold pr-[68.96px]">
+            When the RSI is
+          </span>
+          <Select onValueChange={(value) => setSmaDirection(value)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Above" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="above">Above </SelectItem>
+              <SelectItem value="below">Below </SelectItem>
+            </SelectContent>
+          </Select>
+          <Input
+            type="text"
+            placeholder="(WORK IN PROGRESS) RSI level (e.g. 30, 70, ...)"
+            value={smaValue ?? ""}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value;
+              if (value === "") {
+                setSmaValue(null);
+              } else {
+                const numValue = Number(value);
+                if (!isNaN(numValue)) {
+                  setSmaValue(numValue);
+                }
+              }
+            }}
+            className="hover:border-blue-500 max-w-[180px]"
+          />
+        </div>
+        <p className="text-sm text-muted-foreground pt-[12px]">
+          Searched through {progress} out of 503 Symbols
+        </p>
 
         <Button
           onClick={handleFetch}
