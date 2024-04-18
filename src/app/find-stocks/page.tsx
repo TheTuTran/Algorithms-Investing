@@ -58,7 +58,13 @@ const FindStocks = () => {
       return;
     }
     const results = [];
-    const larger_period = Math.max(smaValue, stochasticPeriod, 365);
+    const days =
+      interval == "1d" || interval == "5d"
+        ? 365
+        : interval == "1mo" || interval == "3mo"
+        ? (stochasticPeriod + 1) * 90
+        : (stochasticPeriod + 1) * 365;
+    const larger_period = Math.max(smaValue, stochasticPeriod, days);
     const period1Date = new Date();
     period1Date.setDate(period1Date.getDate() - larger_period);
 
