@@ -1,8 +1,5 @@
 "use client";
-import {
-  analyzeMovingAveragePerformance,
-  getFormattedDates,
-} from "@/lib/utils";
+import { analyzeMovingAveragePerformance, getFormattedDates } from "@/lib/utils";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { ChangeEvent, useState } from "react";
@@ -46,14 +43,10 @@ const MovingAverage = ({}) => {
 
     // Validate shortTermWindow and longTermWindow format ("number-number")
     const windowFormatRegex = /^\d+-\d+$/;
-    if (
-      !windowFormatRegex.test(shortTermWindow) ||
-      !windowFormatRegex.test(longTermWindow)
-    ) {
+    if (!windowFormatRegex.test(shortTermWindow) || !windowFormatRegex.test(longTermWindow)) {
       toast({
         title: "Error",
-        description:
-          "The window format is incorrect. Please use the 'number-number' format.",
+        description: "The window format is incorrect. Please use the 'number-number' format.",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -78,30 +71,16 @@ const MovingAverage = ({}) => {
         if (!strategyType) {
           toast({
             title: "Error",
-            description:
-              "Please check one of the boxes for calculating profits based on buying, selling, or both.",
+            description: "Please check one of the boxes for calculating profits based on buying, selling, or both.",
             variant: "destructive",
           });
           setIsLoading(false);
           return;
         }
-        localStorage.setItem(
-          "considerLongEntries",
-          JSON.stringify(considerLongEntries)
-        );
-        localStorage.setItem(
-          "considerShortEntries",
-          JSON.stringify(considerShortEntries)
-        );
+        localStorage.setItem("considerLongEntries", JSON.stringify(considerLongEntries));
+        localStorage.setItem("considerShortEntries", JSON.stringify(considerShortEntries));
 
-        const analysisResults = analyzeMovingAveragePerformance(
-          dates,
-          closingPrices,
-          shortTermWindow,
-          longTermWindow,
-          true,
-          strategyType
-        );
+        const analysisResults = analyzeMovingAveragePerformance(dates, closingPrices, shortTermWindow, longTermWindow, true, strategyType);
         setSmaData(analysisResults);
         setCurName(Tickers_dict[symbol] || symbol);
       } else {
@@ -116,38 +95,22 @@ const MovingAverage = ({}) => {
 
   return (
     <div className="flex flex-col mt-8">
-      <h1 className="text-2xl font-bold mb-4">
-        Find Best Moving Average Crossovers
-      </h1>
+      <h1 className="text-2xl font-bold mb-4">Find Best Moving Average Crossovers</h1>
       <p className="text-sm text-muted-foreground mb-4">
-        Spot trends and pinpoint trade opportunities with this Moving Average
-        Crossover tool. Just choose a stock (some symbols may be missing from
-        autofill), set your windows, choose your dates, and click
-        &apos;Fetch&apos; to get started. Click on a row for more insights on
-        when to buy and sell stock based on crossovers.
+        Spot trends and pinpoint trade opportunities with this Moving Average Crossover tool. Just choose a stock (some symbols may be missing from autofill), set your windows, choose your dates, and
+        click &apos;Fetch&apos; to get started. Click on a row for more insights on when to buy and sell stock based on crossovers.
       </p>
       <p className="text-sm text-muted-foreground mb-4">
-        When the fast SMA crosses above the slow SMA, this is a sign of an
-        uptrend, which indicates a buy. Vise versa, when the fast SMA crosses
-        below the slow SMA, this is a sign of a downtrend, which indicates a
-        sell.
+        When the fast SMA crosses above the slow SMA, this is a sign of an uptrend, which indicates a buy. Vise versa, when the fast SMA crosses below the slow SMA, this is a sign of a downtrend,
+        which indicates a sell.
       </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">
-        <StockSearchForm
-          curName={curName}
-          setSymbol={setSymbol}
-          period1={period1}
-          setPeriod1={setPeriod1}
-          period2={period2}
-          setPeriod2={setPeriod2}
-        />
+        <StockSearchForm curName={curName} setSymbol={setSymbol} period1={period1} setPeriod1={setPeriod1} period2={period2} setPeriod2={setPeriod2} />
       </div>
       <div className="w-full mb-4 flex items-center gap-2 justify-between">
         <div className="flex items-center gap-2">
-          <span className="h-10 py-2 text-sm font-semibold">
-            Fast SMA Window:
-          </span>
+          <span className="h-10 py-2 text-sm font-semibold">Fast SMA Window:</span>
           <Input
             type="text"
             placeholder="Fast (e.g. 1-10)"
@@ -160,9 +123,7 @@ const MovingAverage = ({}) => {
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-10 py-2 text-sm font-semibold">
-            Slow SMA Window:
-          </span>
+          <span className="h-10 py-2 text-sm font-semibold">Slow SMA Window:</span>
           <Input
             type="text"
             placeholder="Slow (e.g., 10-50)"
@@ -183,10 +144,7 @@ const MovingAverage = ({}) => {
                 setConsiderLongEntries(!considerLongEntries);
               }}
             />
-            <label
-              htmlFor="considerLongEntries"
-              className="text-sm font-medium leading-none"
-            >
+            <label htmlFor="considerLongEntries" className="text-sm font-medium leading-none">
               Consider Long Positions
             </label>
           </div>
@@ -198,10 +156,7 @@ const MovingAverage = ({}) => {
                 setConsiderShortEntries(!considerShortEntries);
               }}
             />
-            <label
-              htmlFor="considerShortEntries"
-              className="text-sm font-medium leading-none"
-            >
+            <label htmlFor="considerShortEntries" className="text-sm font-medium leading-none">
               Consider Short Positions
             </label>
           </div>

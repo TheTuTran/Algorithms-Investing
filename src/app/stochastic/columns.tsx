@@ -7,9 +7,7 @@ import { DataTableColumnHeader } from "@/components/data-table-column-header";
 export const columns: ColumnDef<Stoch_AnalysisResult>[] = [
   {
     accessorKey: "oversoldStoch",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Oversold Stoch Lv" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Oversold Stoch Lv" />,
     cell: ({ row }) => {
       const oversoldStoch = row.getValue("oversoldStoch");
 
@@ -18,9 +16,7 @@ export const columns: ColumnDef<Stoch_AnalysisResult>[] = [
   },
   {
     accessorKey: "overboughtStoch",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Overbought Stoch Lv" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Overbought Stoch Lv" />,
     cell: ({ row }) => {
       const overboughtStoch = row.getValue("overboughtStoch");
 
@@ -29,9 +25,7 @@ export const columns: ColumnDef<Stoch_AnalysisResult>[] = [
   },
   {
     accessorKey: "cumulativeProfit",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Cumulative Profit" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Cumulative Profit" />,
     cell: ({ row }) => {
       const cumulativeProfit = row.getValue("cumulativeProfit");
 
@@ -40,9 +34,7 @@ export const columns: ColumnDef<Stoch_AnalysisResult>[] = [
   },
   {
     accessorKey: "winPercentage",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Win Percentage" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Win Percentage" />,
     cell: ({ row }) => {
       const winPercentage = row.getValue("winPercentage");
 
@@ -51,9 +43,7 @@ export const columns: ColumnDef<Stoch_AnalysisResult>[] = [
   },
   {
     accessorKey: "numberOfTrades",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Number of Trades" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Number of Trades" />,
     cell: ({ row }) => {
       const numberOfTrades = row.getValue("numberOfTrades");
 

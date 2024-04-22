@@ -11,31 +11,27 @@ export const columns: ColumnDef<{
 }>[] = [
   {
     accessorKey: "symbol",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Symbol" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Symbol" />,
     cell: ({ row }) => {
       const symbol = row.getValue("symbol");
 
       return <div>{symbol as React.ReactNode}</div>;
     },
+    enableHiding: false,
   },
   {
     accessorKey: "security",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Stock Name" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Stock Name" />,
     cell: ({ row }) => {
       const security = row.getValue("security");
 
       return <div>{security as React.ReactNode}</div>;
     },
+    enableHiding: false,
   },
   {
     accessorKey: "industry",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Sector" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Sector" />,
     cell: ({ row }) => {
       const industry = row.getValue("industry");
 
@@ -44,9 +40,8 @@ export const columns: ColumnDef<{
   },
   {
     accessorKey: "date",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Date" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Date" />,
     cell: ({ row }) => new Date(row.getValue("date")).toLocaleDateString(),
+    enableHiding: false,
   },
 ];

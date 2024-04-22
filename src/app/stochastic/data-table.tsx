@@ -1,42 +1,16 @@
 "use client";
 
 import * as React from "react";
-import {
-  ColumnDef,
-  SortingState,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { ColumnDef, SortingState, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BeatLoader } from "react-spinners";
 import { DataTablePagination } from "@/components/data-table-pagination";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/table-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "@/components/ui/table-dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { DialogDataTable } from "../../components/dialog-component/dialog-data-table";
 import { dialogue_columns } from "../../components/dialog-component/stoch-dialog-columns";
-import {
-  Stoch_Signal,
-  Stoch_AnalysisResult,
-  StrategyType,
-  Quote,
-} from "@/lib/types";
+import { Stoch_Signal, Stoch_AnalysisResult, StrategyType, Quote } from "@/lib/types";
 import { calculateStochastic, generateStochasticSignals } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
@@ -45,11 +19,7 @@ interface DataTableProps<TData, TValue> {
   isLoading: boolean;
 }
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
-  isLoading,
-}: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, isLoading }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [stochData, setStochData] = React.useState<Stoch_Signal[]>([]);
   const [oversoldStoch, setOversoldStoch] = React.useState<number>(0);
@@ -76,16 +46,7 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
+                  return <TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>;
                 })}
               </TableRow>
             ))}
@@ -99,42 +60,25 @@ export function DataTable<TData, TValue>({
                   className="cursor-pointer"
                   onClick={() => {
                     const storedData = localStorage.getItem("fetchedData");
-                    const storedStochasticPeriod =
-                      localStorage.getItem("stochasticPeriod");
+                    const storedStochasticPeriod = localStorage.getItem("stochasticPeriod");
 
                     if (storedData && storedStochasticPeriod) {
                       const parsedData: Quote[] = JSON.parse(storedData);
                       const dates = parsedData.map((entry) => entry.date);
-                      const closingPrices = parsedData.map(
-                        (entry) => entry.close
-                      );
+                      const closingPrices = parsedData.map((entry) => entry.close);
                       const highPrices = parsedData.map((entry) => entry.high);
                       const lowPrices = parsedData.map((entry) => entry.low);
-                      const oversoldStoch = (
-                        row.original as Stoch_AnalysisResult
-                      ).oversoldStoch;
-                      const overboughtStoch = (
-                        row.original as Stoch_AnalysisResult
-                      ).overboughtStoch;
+                      const oversoldStoch = (row.original as Stoch_AnalysisResult).oversoldStoch;
+                      const overboughtStoch = (row.original as Stoch_AnalysisResult).overboughtStoch;
                       setOversoldStoch(oversoldStoch);
                       setOverboughtStoch(overboughtStoch);
 
-                      const considerLongEntries = localStorage.getItem(
-                        "considerLongEntries"
-                      );
-                      const considerShortEntries = localStorage.getItem(
-                        "considerShortEntries"
-                      );
+                      const considerLongEntries = localStorage.getItem("considerLongEntries");
+                      const considerShortEntries = localStorage.getItem("considerShortEntries");
                       let strategyType;
-                      if (
-                        considerLongEntries &&
-                        considerShortEntries === "false"
-                      ) {
+                      if (considerLongEntries && considerShortEntries === "false") {
                         strategyType = StrategyType.Buying;
-                      } else if (
-                        considerLongEntries === "false" &&
-                        considerShortEntries
-                      ) {
+                      } else if (considerLongEntries === "false" && considerShortEntries) {
                         strategyType = StrategyType.Shorting;
                       } else if (considerLongEntries && considerShortEntries) {
                         strategyType = StrategyType.Both;
@@ -143,49 +87,26 @@ export function DataTable<TData, TValue>({
                       if (!strategyType) {
                         return;
                       }
-                      const stochasticPeriod =
-                        localStorage.getItem("stochasticPeriod");
-                      const stochastic = calculateStochastic(
-                        closingPrices,
-                        highPrices,
-                        lowPrices,
-                        Number(stochasticPeriod)
-                      );
+                      const stochasticPeriod = localStorage.getItem("stochasticPeriod");
+                      const stochastic = calculateStochastic(closingPrices, highPrices, lowPrices, Number(stochasticPeriod));
 
-                      const signals = generateStochasticSignals(
-                        dates,
-                        closingPrices,
-                        stochastic,
-                        oversoldStoch,
-                        overboughtStoch,
-                        strategyType
-                      );
+                      const signals = generateStochasticSignals(dates, closingPrices, stochastic, oversoldStoch, overboughtStoch, strategyType);
                       setStochData(signals.reverse());
                     } else {
-                      console.error(
-                        "No fetched data available in localStorage."
-                      );
+                      console.error("No fetched data available in localStorage.");
                     }
 
                     dialogTriggerRef.current?.click();
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
+                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   {isLoading ? (
                     <div>
                       <BeatLoader color="#94a3b7" size={8} />
@@ -206,12 +127,8 @@ export function DataTable<TData, TValue>({
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {`Table with ${oversoldStoch} for oversold Stochastic and ${overboughtStoch} for overbought Stochastic`}
-            </DialogTitle>
-            <DialogDescription>
-              <DialogDataTable columns={dialogue_columns} data={stochData} />
-            </DialogDescription>
+            <DialogTitle>{`Table with ${oversoldStoch} for oversold Stochastic and ${overboughtStoch} for overbought Stochastic`}</DialogTitle>
+            <DialogDataTable columns={dialogue_columns} data={stochData} />
           </DialogHeader>
         </DialogContent>
       </Dialog>

@@ -106,3 +106,9 @@ export enum StrategyType {
   Shorting = "shorting",
   Both = "both",
 }
+
+export interface StockSecuritySectorFormat {
+  Symbol: string;
+  Security: string;
+  "GICS Sector": string;
+}

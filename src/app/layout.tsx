@@ -15,25 +15,14 @@ export const metadata: Metadata = {
   description: "Visual display of simple investing algorithms.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html suppressHydrationWarning lang="en">
       <body className={inter.className} suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Header />
           {/* Message for small to medium screens, hidden on larger screens */}
-          <div className="block lg:hidden p-4 text-center m-4">
-            For desktop use only. This site is optimized for larger screens.
-          </div>
+          <div className="block lg:hidden p-4 text-center m-4">For desktop use only. This site is optimized for larger screens.</div>
 
           {/* Main content, hidden on small and medium screens */}
           <div className="hidden lg:block">

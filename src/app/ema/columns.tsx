@@ -7,9 +7,7 @@ import { DataTableColumnHeader } from "@/components/data-table-column-header";
 export const columns: ColumnDef<MA_AnalysisResult>[] = [
   {
     accessorKey: "fastMA",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Short EMA Period" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Short EMA Period" />,
     cell: ({ row }) => {
       const fastMA = row.getValue("fastMA");
 
@@ -18,9 +16,7 @@ export const columns: ColumnDef<MA_AnalysisResult>[] = [
   },
   {
     accessorKey: "slowMA",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Long EMA Period" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Long EMA Period" />,
     cell: ({ row }) => {
       const slowMA = row.getValue("slowMA");
 
@@ -29,9 +25,7 @@ export const columns: ColumnDef<MA_AnalysisResult>[] = [
   },
   {
     accessorKey: "cumulativeProfit",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Cumulative Profit" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Cumulative Profit" />,
     cell: ({ row }) => {
       const cumulativeProfit = row.getValue("cumulativeProfit");
 
@@ -40,9 +34,7 @@ export const columns: ColumnDef<MA_AnalysisResult>[] = [
   },
   {
     accessorKey: "winPercentage",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Win Percentage" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Win Percentage" />,
     cell: ({ row }) => {
       const winPercentage = row.getValue("winPercentage");
 
@@ -51,9 +43,7 @@ export const columns: ColumnDef<MA_AnalysisResult>[] = [
   },
   {
     accessorKey: "numberOfTrades",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Number of Trades" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Number of Trades" />,
     cell: ({ row }) => {
       const numberOfTrades = row.getValue("numberOfTrades");
 

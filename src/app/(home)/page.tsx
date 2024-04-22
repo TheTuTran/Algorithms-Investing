@@ -28,31 +28,16 @@ export default function HomePage() {
       <h1 className="text-2xl font-bold mb-4">Historical Data</h1>
       <p className="text-sm text-muted-foreground mb-4">
         View the historical data here or you can download it from{" "}
-        <a
-          className=" hover:text-slate-600 hover:underline"
-          href={`https://finance.yahoo.com/quote/${symbol}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a className=" hover:text-slate-600 hover:underline" href={`https://finance.yahoo.com/quote/${symbol}`} target="_blank" rel="noopener noreferrer">
           here
         </a>
       </p>
       <hr className="mb-4" />
       <div className="w-full flex gap-4 mb-4">
-        <StockSearchForm
-          curName={curName}
-          setSymbol={setSymbol}
-          period1={period1}
-          setPeriod1={setPeriod1}
-          period2={period2}
-          setPeriod2={setPeriod2}
-        />
+        <StockSearchForm curName={curName} setSymbol={setSymbol} period1={period1} setPeriod1={setPeriod1} period2={period2} setPeriod2={setPeriod2} />
       </div>
       <div className="w-full mb-4 flex ">
-        <Button
-          onClick={handleSubmit}
-          className="btn btn-primary self-start ml-auto "
-        >
+        <Button onClick={handleSubmit} className="btn btn-primary self-start ml-auto ">
           Fetch
         </Button>
       </div>

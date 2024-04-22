@@ -7,16 +7,12 @@ import { DataTableColumnHeader } from "@/components/data-table-column-header";
 export const columns: ColumnDef<Quote>[] = [
   {
     accessorKey: "date",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Date" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Date" />,
     cell: ({ row }) => new Date(row.getValue("date")).toLocaleDateString(),
   },
   {
     accessorKey: "open",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Open" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Open" />,
     cell: ({ row }) => {
       const open = row.getValue("open");
 
@@ -25,9 +21,7 @@ export const columns: ColumnDef<Quote>[] = [
   },
   {
     accessorKey: "high",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="High" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="High" />,
     cell: ({ row }) => {
       const high = row.getValue("high");
 
@@ -36,9 +30,7 @@ export const columns: ColumnDef<Quote>[] = [
   },
   {
     accessorKey: "low",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Low" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Low" />,
     cell: ({ row }) => {
       const low = row.getValue("low");
 
@@ -47,9 +39,7 @@ export const columns: ColumnDef<Quote>[] = [
   },
   {
     accessorKey: "close",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Close" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Close" />,
     cell: ({ row }) => {
       const close = row.getValue("close");
 
@@ -58,9 +48,7 @@ export const columns: ColumnDef<Quote>[] = [
   },
   {
     accessorKey: "adjclose",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Adjusted Close" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Adjusted Close" />,
     cell: ({ row }) => {
       const adjClose = row.getValue("adjclose");
 
@@ -69,9 +57,7 @@ export const columns: ColumnDef<Quote>[] = [
   },
   {
     accessorKey: "volume",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Volume" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Volume" />,
     cell: ({ row }) => {
       const volume = row.getValue("volume");
       return <div>{volume as React.ReactNode}</div>;

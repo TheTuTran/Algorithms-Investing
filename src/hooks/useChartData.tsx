@@ -6,12 +6,7 @@ export const useChartData = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const fetchChartData = async (
-    symbol: string,
-    period1: string,
-    period2: string,
-    interval: string
-  ) => {
+  const fetchChartData = async (symbol: string, period1: string, period2: string, interval: string) => {
     setIsLoading(true);
     setError("");
 
