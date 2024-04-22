@@ -9,13 +9,16 @@ import { StockSecuritySectorFormat } from "@/lib/types";
 interface FindStockFilterProps {
   selectedRows: StockSecuritySectorFormat[];
   setSelectedRows: Dispatch<SetStateAction<StockSecuritySectorFormat[]>>;
+  disabled: boolean;
 }
 
-const FindStockFilter: FC<FindStockFilterProps> = ({ selectedRows, setSelectedRows }) => {
+const FindStockFilter: FC<FindStockFilterProps> = ({ selectedRows, setSelectedRows, disabled }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">{selectedRows.length > 0 ? selectedRows.length : 503} Stocks</Button>
+        <Button disabled={disabled} variant="outline">
+          {selectedRows.length > 0 ? selectedRows.length : 503} Stocks
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

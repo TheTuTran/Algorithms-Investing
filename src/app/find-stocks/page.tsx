@@ -69,8 +69,9 @@ const FindStocks = () => {
           const closes = data.map((d) => d.close);
           const highs = data.map((d) => d.high);
           const lows = data.map((d) => d.low);
-          const smaValues = includeSma ? calculateSma(closes, 14) : null;
           const stochasticValues = calculateStochastic(closes, highs, lows, stochasticPeriod);
+
+          const smaValues = includeSma ? calculateSma(closes, 14) : null;
           const rsiValues = includeRsi ? calculateRsi(closes, 14) : null;
           const macdValues = includeMacd ? calculateMACD(closes, 12, 26, 9) : null;
 
@@ -96,9 +97,9 @@ const FindStocks = () => {
 
           for (let i = closes.length; i > Math.max(smaValue ?? 0, stochasticPeriod); i--) {
             if (stochasticValues[i] !== null && stochasticValues[i - 1]) {
-              const smaCondition = includeSma ? smaValues && smaValues[i] !== null && (smaDirection === "above" ? closes[i] > smaValues[i]! : closes[i] < smaValues[i]!) : true;
-              const rsiCondition = includeRsi ? rsiValues && rsiValues[i] !== null && (rsiDirection === "above" ? rsiValues[i]! > rsiValue! : rsiValues[i]! < rsiValue!) : true;
-              const macdCondition = includeMacd ? macdValues && macdValues.macdLine[i] !== null && (macdDirection === "above" ? macdValues.macdLine[i]! > 0 : macdValues.macdLine[i]! < 0) : true;
+              const smaCondition = includeSma ? smaValues![i] !== null && (smaDirection === "above" ? closes[i] > smaValues![i]! : closes[i] < smaValues![i]!) : true;
+              const rsiCondition = includeRsi ? rsiValues![i] !== null && (rsiDirection === "above" ? rsiValues![i]! > rsiValue! : rsiValues![i]! < rsiValue!) : true;
+              const macdCondition = includeMacd ? macdValues!.macdLine[i] !== null && (macdDirection === "above" ? macdValues!.macdLine[i]! > 0 : macdValues!.macdLine[i]! < 0) : true;
 
               // main signal
               const stochasticCondition =
@@ -107,6 +108,11 @@ const FindStocks = () => {
                   : stochasticValues[i]! < stochasticLevel && stochasticValues[i - 1]! > stochasticLevel;
 
               if (smaCondition && stochasticCondition && rsiCondition && macdCondition) {
+                console.log("closing", closes[i]);
+                console.log("sma", includeSma ? smaValues![i] : smaCondition);
+                console.log("rsi", includeRsi ? rsiValues![i] : rsiCondition);
+                console.log("macd", includeMacd ? macdValues!.macdLine[i]! : macdCondition);
+
                 results.push({
                   symbol,
                   security,
@@ -141,7 +147,7 @@ const FindStocks = () => {
       </p>
       <div className="flex gap-4 items-center mb-4">
         <p className="text-sm text-muted-foreground">Searched through {progress} out of </p>
-        <FindStockFilter selectedRows={selectedRows} setSelectedRows={setSelectedRows} />
+        <FindStockFilter disabled={loading} selectedRows={selectedRows} setSelectedRows={setSelectedRows} />
       </div>
 
       <hr className="mb-4" />
@@ -149,7 +155,7 @@ const FindStocks = () => {
       <div className="w-full mb-4 flex items-center gap-6">
         <div className="flex items-center gap-2">
           <span className="h-10 py-2 text-sm font-semibold">Get signal when oscillator</span>
-          <Select onValueChange={(value) => setStochasticDirection(value)}>
+          <Select disabled={loading} onValueChange={(value) => setStochasticDirection(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Crosses Above" />
             </SelectTrigger>
@@ -159,6 +165,7 @@ const FindStocks = () => {
             </SelectContent>
           </Select>
           <Input
+            disabled={loading}
             type="text"
             placeholder="Stochastic (e.g. 20, 30, 70, ...)"
             value={stochasticLevel ?? ""}
@@ -179,6 +186,7 @@ const FindStocks = () => {
         <div className="flex items-center gap-2">
           <span className="h-10 py-2 text-sm font-semibold">Stochastic Period</span>
           <Input
+            disabled={loading}
             type="text"
             placeholder="# of Intervals (e.g. 10, 14, ...)"
             value={stochasticPeriod ?? ""}
@@ -206,7 +214,7 @@ const FindStocks = () => {
             }}
           />
           <span className="h-10 py-2 text-sm font-semibold pr-[4.34px]">Include Closing Price</span>
-          <Select onValueChange={(value) => setSmaDirection(value)}>
+          <Select disabled={loading} onValueChange={(value) => setSmaDirection(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />
             </SelectTrigger>
@@ -216,6 +224,7 @@ const FindStocks = () => {
             </SelectContent>
           </Select>
           <Input
+            disabled={loading}
             type="text"
             placeholder="SMA (e.g. 5, 10, 20, ...)"
             value={smaValue ?? ""}
@@ -235,7 +244,7 @@ const FindStocks = () => {
         </div>
         <div className="flex items-center gap-2 ">
           <span className="h-10 py-2 text-sm font-semibold pr-[31.02px] ">Time Interval</span>
-          <Select onValueChange={(value) => setInterval(value)}>
+          <Select disabled={loading} onValueChange={(value) => setInterval(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="1 Day" />
             </SelectTrigger>
@@ -258,7 +267,7 @@ const FindStocks = () => {
             }}
           />
           <span className="h-10 py-2 text-sm font-semibold pr-[50.69px]">Include MACD</span>
-          <Select onValueChange={setMacdDirection}>
+          <Select disabled={loading} onValueChange={setMacdDirection}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />
             </SelectTrigger>
@@ -279,7 +288,7 @@ const FindStocks = () => {
             }}
           />
           <span className="h-10 py-2 text-sm font-semibold pr-[71.56px]">Include RSI</span>
-          <Select onValueChange={(value) => setRsiDirection(value)}>
+          <Select disabled={loading} onValueChange={(value) => setRsiDirection(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />
             </SelectTrigger>
@@ -289,6 +298,7 @@ const FindStocks = () => {
             </SelectContent>
           </Select>
           <Input
+            disabled={loading}
             type="text"
             placeholder="RSI Level"
             value={rsiValue ?? ""}
