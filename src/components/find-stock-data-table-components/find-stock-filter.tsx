@@ -20,7 +20,7 @@ const FindStockFilter: FC<FindStockFilterProps> = ({ selectedRows, setSelectedRo
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Filter Stocks</DialogTitle>
-          <DialogDescription>Filter stocks based on the sector or the stock name. Click save when you're done.</DialogDescription>
+          <DialogDescription>Filter stocks based on the sector or the stock name. Click save changes when you are done.</DialogDescription>
         </DialogHeader>
         <FindStockFilterDataTable columns={findStockColumns} data={snp_array} setSelectedRows={setSelectedRows} />
       </DialogContent>
