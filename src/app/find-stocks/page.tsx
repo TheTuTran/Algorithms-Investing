@@ -119,7 +119,7 @@ const FindStocks = () => {
                   industry,
                   date: data[i].date,
                   buyPrice: closes[i],
-                  curPrice: closes[closes.length-1],
+                  curPrice: closes[closes.length - 1],
                 });
                 break;
               }
@@ -276,7 +276,7 @@ const FindStocks = () => {
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />
             </SelectTrigger>
-            <SelectContent >
+            <SelectContent>
               <SelectItem value="above">Above</SelectItem>
               <SelectItem value="below">Below</SelectItem>
             </SelectContent>

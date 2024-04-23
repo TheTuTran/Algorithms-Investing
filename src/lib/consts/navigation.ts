@@ -1,16 +1,19 @@
-export const DAILY_TRADE_OPPORTUNITIES_ALGORITHMS_LINKS = [
+export const ALGORITHMS = [
   {
-    title: "Moving Average Crossover",
+    title: "SMA Crossover",
     href: "ma",
   },
   {
-    title: "Exponential Moving Average Crossover",
+    title: "EMA Crossover",
     href: "ema",
   },
   {
     title: "Stochastic Crossover",
     href: "stochastic",
   },
+];
+
+export const EXPLORE = [
   {
     title: "Find Stocks with Indicators",
     href: "find-stocks",

@@ -1,11 +1,13 @@
 "use client";
 
 import { FC } from "react";
-import { DAILY_TRADE_OPPORTUNITIES_ALGORITHMS_LINKS, OTHER_LINKS, WORK_IN_PROGRESS } from "@/lib/consts/navigation";
+import { ALGORITHMS, EXPLORE, OTHER_LINKS, WORK_IN_PROGRESS } from "@/lib/consts/navigation";
+import { usePathname } from "next/navigation";
 
 interface SidebarProps {}
 
 const Sidebar: FC<SidebarProps> = ({}) => {
+  const pathname = usePathname();
   return (
     <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 md:sticky md:block">
       <div className="relative overflow-hidden h-full py-6 pl-8 pr-6 lg:py-8">
@@ -15,9 +17,14 @@ const Sidebar: FC<SidebarProps> = ({}) => {
               <div>
                 {[
                   {
-                    header: "Find Daily Trade Opportunities",
-                    items: DAILY_TRADE_OPPORTUNITIES_ALGORITHMS_LINKS,
+                    header: "Find Daily Trades",
+                    items: EXPLORE,
                   },
+                  {
+                    header: "Apply Algorithms",
+                    items: ALGORITHMS,
+                  },
+
                   /*
                   {
                     header: "Work In Progress",
@@ -28,10 +35,14 @@ const Sidebar: FC<SidebarProps> = ({}) => {
                  */
                 ].map((section) => (
                   <div className="pb-4" key={section.header}>
-                    <h4 className="mb-1 rounded-md px-2 py-1 text-sm font-semibold">{section.header}</h4>
+                    <h4 className="mb-1 rounded-md px-2 py-1 text-sm font-semibold truncate">{section.header}</h4>
                     <div className="grid grid-flow-row auto-rows-max text-sm">
                       {section.items.map((item) => (
-                        <a key={item.href} className=" group flex w-full items-center rounded-md border border-transparent px-2 py-1 hover:underline text-muted-foreground" href={item.href}>
+                        <a
+                          key={item.href}
+                          className={`${pathname.includes(item.href) ? "" : "text-muted-foreground"} group flex w-full items-center rounded-md border border-transparent px-2 py-1 hover:underline `}
+                          href={item.href}
+                        >
                           {item.title}
                         </a>
                       ))}

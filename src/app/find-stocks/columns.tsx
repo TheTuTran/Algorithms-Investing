@@ -43,12 +43,12 @@ export const columns: ColumnDef<{
     accessorKey: "date",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Date" />,
     cell: ({ row }) => {
-        const date = new Date(row.getValue("date"));
-        return date.toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric'
-        });
+      const date = new Date(row.getValue("date"));
+      return date.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
     },
     enableHiding: false,
   },
