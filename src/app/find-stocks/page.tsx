@@ -188,7 +188,7 @@ const FindStocks = () => {
             className="hover:border-blue-500 max-w-[180px]"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-auto">
           <span className="h-10 py-2 text-sm font-semibold">Stochastic Period</span>
           <Input
             disabled={loading}
@@ -218,7 +218,7 @@ const FindStocks = () => {
               setIncludeSma(!includeSma);
             }}
           />
-          <span className="h-10 py-2 text-sm font-semibold pr-[4.34px]">Include Closing Price</span>
+          <span className="h-10 py-2 text-sm font-semibold pr-[8.17px]">Include Closing Price</span>
           <Select disabled={loading} onValueChange={(value) => setSmaDirection(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />
@@ -247,8 +247,8 @@ const FindStocks = () => {
             className="hover:border-blue-500 max-w-[180px]"
           />
         </div>
-        <div className="flex items-center gap-2 ">
-          <span className="h-10 py-2 text-sm font-semibold pr-[31.02px] ">Time Interval</span>
+        <div className="flex items-center gap-2 ml-auto">
+          <span className="h-10 py-2 text-sm font-semibold ">Time Interval </span>
           <Select disabled={loading} onValueChange={(value) => setInterval(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="1 Day" />
@@ -271,17 +271,17 @@ const FindStocks = () => {
               setIncludeMacd(!includeMacd);
             }}
           />
-          <span className="h-10 py-2 text-sm font-semibold pr-[50.69px]">Include MACD</span>
+          <span className="h-10 py-2 text-sm font-semibold pr-[54.52px]">Include MACD</span>
           <Select disabled={loading} onValueChange={setMacdDirection}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent >
               <SelectItem value="above">Above</SelectItem>
               <SelectItem value="below">Below</SelectItem>
             </SelectContent>
           </Select>
-          <span className="h-10 py-2 text-sm font-semibold">The zero line</span>
+          <span className="h-10 py-2 px-3 text-sm font-semibold">the zero line</span>
         </div>
       </div>
       <div className="w-full mb-4 flex gap-6">
@@ -292,7 +292,7 @@ const FindStocks = () => {
               setIncludeRsi(!includeRsi);
             }}
           />
-          <span className="h-10 py-2 text-sm font-semibold pr-[71.56px]">Include RSI</span>
+          <span className="h-10 py-2 text-sm font-semibold pr-[75.39px]">Include RSI</span>
           <Select disabled={loading} onValueChange={(value) => setRsiDirection(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />

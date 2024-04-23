@@ -42,7 +42,14 @@ export const columns: ColumnDef<{
   {
     accessorKey: "date",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Date" />,
-    cell: ({ row }) => new Date(row.getValue("date")).toLocaleDateString(),
+    cell: ({ row }) => {
+        const date = new Date(row.getValue("date"));
+        return date.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        });
+    },
     enableHiding: false,
   },
   {
@@ -51,7 +58,7 @@ export const columns: ColumnDef<{
     cell: ({ row }) => {
       const buyPrice = row.getValue("buyPrice");
 
-      return <div>{buyPrice as React.ReactNode}</div>;
+      return <div>{Number(buyPrice).toFixed(2) as React.ReactNode}</div>;
     },
     enableSorting: false,
     enableHiding: false,
