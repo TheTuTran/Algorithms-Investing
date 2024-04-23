@@ -40,8 +40,14 @@ export const columns: ColumnDef<{
   },
   {
     accessorKey: "date",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Date" />,
-    cell: ({ row }) => new Date(row.getValue("date")).toLocaleDateString(),
-    enableHiding: false,
-  },
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Date of Signal" />,
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("date"));
+      return date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    },
+  }
 ];

@@ -8,7 +8,14 @@ export const columns: ColumnDef<Quote>[] = [
   {
     accessorKey: "date",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Date" />,
-    cell: ({ row }) => new Date(row.getValue("date")).toLocaleDateString(),
+    cell: ({ row }) => {
+        const date = new Date(row.getValue("date"));
+        return date.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        });
+    }
   },
   {
     accessorKey: "open",

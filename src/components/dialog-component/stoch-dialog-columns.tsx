@@ -8,7 +8,14 @@ export const dialogue_columns: ColumnDef<Stoch_Signal>[] = [
   {
     accessorKey: "date",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Date" />,
-    cell: ({ row }) => new Date(row.getValue("date")).toLocaleDateString(),
+    cell: ({ row }) => {
+        const date = new Date(row.getValue("date"));
+        return date.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        });
+    }
   },
   {
     accessorKey: "price",
