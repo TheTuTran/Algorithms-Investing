@@ -44,4 +44,26 @@ export const columns: ColumnDef<{
     cell: ({ row }) => new Date(row.getValue("date")).toLocaleDateString(),
     enableHiding: false,
   },
+  {
+    accessorKey: "buyPrice",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Stock Price at Date" />,
+    cell: ({ row }) => {
+      const buyPrice = row.getValue("buyPrice");
+
+      return <div>{buyPrice as React.ReactNode}</div>;
+    },
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: "curPrice",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Current Stock Price" />,
+    cell: ({ row }) => {
+      const curPrice = row.getValue("curPrice");
+
+      return <div>{curPrice as React.ReactNode}</div>;
+    },
+    enableSorting: false,
+    enableHiding: false,
+  },
 ];

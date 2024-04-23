@@ -27,8 +27,6 @@ export function DataTable<TData, TValue>({ columns, data, isLoading }: DataTable
     },
   });
 
-  const dialogTriggerRef = React.useRef<HTMLButtonElement>(null);
-
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
@@ -45,13 +43,14 @@ export function DataTable<TData, TValue>({ columns, data, isLoading }: DataTable
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className={`${Number(row.getValue('buyPrice')) < Number(row.getValue('curPrice')) ? "border-2 border-green-400" : Number(row.getValue('buyPrice')) > Number(row.getValue('curPrice')) ? "border-2 border-red-400" : ""}`}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
+              
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   {isLoading ? (
