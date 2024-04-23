@@ -118,6 +118,8 @@ const FindStocks = () => {
                   security,
                   industry,
                   date: data[i].date,
+                  buyPrice: closes[i],
+                  curPrice: closes[closes.length-1],
                 });
                 break;
               }
@@ -144,6 +146,9 @@ const FindStocks = () => {
       <p className="text-sm text-muted-foreground mb-4">
         If a stock appears to have matched the following indicators, then it will appear below with the date that it happened. The indicator is when the oscillator crosses above/below the stochastic
         level with the closing price above/below the inputted sma
+      </p>
+      <p className="text-sm text-muted-foreground mb-4">
+        Green border indicates the stock price went up since the date of signal. Red border indicates the stock price went down since the date of signal.
       </p>
       <div className="flex gap-4 items-center mb-4">
         <p className="text-sm text-muted-foreground">Searched through {progress} out of </p>

@@ -37,17 +37,34 @@ export const columns: ColumnDef<{
 
       return <div>{industry as React.ReactNode}</div>;
     },
+    enableHiding: false,
   },
   {
     accessorKey: "date",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Date of Signal" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Date" />,
+    cell: ({ row }) => new Date(row.getValue("date")).toLocaleDateString(),
+    enableHiding: false,
+  },
+  {
+    accessorKey: "buyPrice",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Stock Price at Date" />,
     cell: ({ row }) => {
-      const date = new Date(row.getValue("date"));
-      return date.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-      });
+      const buyPrice = row.getValue("buyPrice");
+
+      return <div>{buyPrice as React.ReactNode}</div>;
     },
-  }
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: "curPrice",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Current Stock Price" />,
+    cell: ({ row }) => {
+      const curPrice = row.getValue("curPrice");
+
+      return <div>{curPrice as React.ReactNode}</div>;
+    },
+    enableSorting: false,
+    enableHiding: false,
+  },
 ];
