@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { calculateMACD, calculateRsi, calculateSma, calculateStochastic, getFormattedDates } from "@/lib/utils";
 import { snp_array } from "@/lib/data/snp_500";
@@ -35,11 +35,14 @@ const FindStocks = () => {
   const [includeRsi, setIncludeRsi] = useState(false);
   const [includeMacd, setIncludeMacd] = useState(false);
   const [isDataReady, setIsDataReady] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<StockSecuritySectorFormat[]>([]);
 
-  const [selectedRows, setSelectedRows] = useState<StockSecuritySectorFormat[]>(() => {
+  useEffect(() => {
     const savedRows = localStorage.getItem("selectedStockRows");
-    return savedRows ? JSON.parse(savedRows) : [];
-  });
+    if (savedRows) {
+      setSelectedRows(JSON.parse(savedRows));
+    }
+  }, []);
 
   const downloadCSV = (data: any[]) => {
     let csvContent = ["Symbol", "Security", "Industry", "Date of Signal", "Date of Signal Price", "Current Price"].join(",") + "\n";
