@@ -38,6 +38,14 @@ export function FindStockFilterDataTable<TData, TValue>({ columns, data, setSele
     },
   });
 
+  React.useEffect(() => {
+    const cachedSelectedIds = localStorage.getItem("selectedIds");
+    console.log(cachedSelectedIds);
+    table.getRowModel().rows.map((row) => {
+      if (cachedSelectedIds?.includes(row.id)) row.toggleSelected(!row.getIsSelected());
+    });
+  }, []);
+
   return (
     <div className="space-y-4">
       <div className="flex gap-8 items-center py-4">
@@ -104,15 +112,19 @@ export function FindStockFilterDataTable<TData, TValue>({ columns, data, setSele
           type="button"
           onClick={() => {
             let filteredRows = table.getSelectedRowModel().rows;
-            let temp: StockSecuritySectorFormat[] = [];
+            let selectedRows: StockSecuritySectorFormat[] = [];
+            let selectedIds: string[] = [];
             filteredRows.forEach((row) => {
-              temp.push({
+              selectedRows.push({
                 Symbol: row.getValue("Symbol"),
                 Security: row.getValue("Security"),
                 "GICS Sector": row.getValue("GICS Sector"),
               });
+              selectedIds.push(row.id);
             });
-            setSelectedRows(temp);
+            setSelectedRows(selectedRows);
+            localStorage.setItem("selectedStockRows", JSON.stringify(selectedRows));
+            localStorage.setItem("selectedIds", JSON.stringify(selectedIds));
             toast({
               title: "Sucess",
               description: "Saved filtered stocks, you may close out of this window.",

@@ -24,6 +24,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.0",
+    "file-saver": "^2.0.5",
     "lucide-react": "^0.360.0",
     "next": "14.1.0",
     "next-themes": "^0.3.0",
@@ -36,6 +37,7 @@
     "yahoo-finance2": "^2.11.0"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

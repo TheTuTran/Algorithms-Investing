@@ -12,9 +12,9 @@ import { columns } from "./columns";
 import { toast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-
 import { StockSecuritySectorFormat } from "@/lib/types";
 import FindStockFilter from "@/components/find-stock-data-table-components/find-stock-filter";
+import { saveAs } from "file-saver";
 
 const FindStocks = () => {
   const [loading, setLoading] = useState(false);
@@ -34,7 +34,35 @@ const FindStocks = () => {
   const [includeSma, setIncludeSma] = useState(false);
   const [includeRsi, setIncludeRsi] = useState(false);
   const [includeMacd, setIncludeMacd] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<StockSecuritySectorFormat[]>([]);
+  const [isDataReady, setIsDataReady] = useState(false);
+
+  const [selectedRows, setSelectedRows] = useState<StockSecuritySectorFormat[]>(() => {
+    const savedRows = localStorage.getItem("selectedStockRows");
+    return savedRows ? JSON.parse(savedRows) : [];
+  });
+
+  const downloadCSV = (data: any[]) => {
+    let csvContent = ["Symbol", "Security", "Industry", "Date of Signal", "Date of Signal Price", "Current Price"].join(",") + "\n";
+
+    data.forEach((item) => {
+      const row = [
+        item.symbol,
+        item.security,
+        item.industry,
+        new Date(item.date).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        item.buyPrice,
+        item.curPrice,
+      ].join(",");
+      csvContent += row + "\n";
+    });
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "Matching Stock Data.csv");
+  };
 
   const handleFetch = async () => {
     setMatchingStock([]);
@@ -108,11 +136,6 @@ const FindStocks = () => {
                   : stochasticValues[i]! < stochasticLevel && stochasticValues[i - 1]! > stochasticLevel;
 
               if (smaCondition && stochasticCondition && rsiCondition && macdCondition) {
-                console.log("closing", closes[i]);
-                console.log("sma", includeSma ? smaValues![i] : smaCondition);
-                console.log("rsi", includeRsi ? rsiValues![i] : rsiCondition);
-                console.log("macd", includeMacd ? macdValues!.macdLine[i]! : macdCondition);
-
                 results.push({
                   symbol,
                   security,
@@ -131,7 +154,7 @@ const FindStocks = () => {
       }
       setProgress((prevProgress) => prevProgress + 1);
     }
-
+    setIsDataReady(true);
     setMatchingStock(results);
     setLoading(false);
   };
@@ -146,9 +169,6 @@ const FindStocks = () => {
       <p className="text-sm text-muted-foreground mb-4">
         If a stock appears to have matched the following indicators, then it will appear below with the date that it happened. The indicator is when the oscillator crosses above/below the stochastic
         level with the closing price above/below the inputted sma
-      </p>
-      <p className="text-sm text-muted-foreground mb-4">
-        Green border indicates the stock price went up since the date of signal. Red border indicates the stock price went down since the date of signal.
       </p>
       <div className="flex gap-4 items-center mb-4">
         <p className="text-sm text-muted-foreground">Searched through {progress} out of </p>
@@ -206,7 +226,7 @@ const FindStocks = () => {
                 }
               }
             }}
-            className="hover:border-blue-500 max-w-[163px]"
+            className="hover:border-blue-500 max-w-[180px]"
           />
         </div>
       </div>
@@ -284,7 +304,7 @@ const FindStocks = () => {
           <span className="h-10 py-2 px-3 text-sm font-semibold">the zero line</span>
         </div>
       </div>
-      <div className="w-full mb-4 flex gap-6">
+      <div className="w-full mb-4 flex">
         <div className="flex items-center gap-2">
           <Checkbox
             checked={includeRsi}
@@ -321,8 +341,11 @@ const FindStocks = () => {
             className="hover:border-blue-500 max-w-[180px]"
           />
         </div>
+        <Button onClick={() => downloadCSV(matchingStock)} disabled={!isDataReady} className="btn btn-primary ml-auto mr-6">
+          Download to Excel
+        </Button>
 
-        <Button onClick={handleFetch} disabled={loading} className="btn btn-primary self-start ml-auto">
+        <Button onClick={handleFetch} disabled={loading} className="btn btn-primary">
           Fetch
         </Button>
       </div>
