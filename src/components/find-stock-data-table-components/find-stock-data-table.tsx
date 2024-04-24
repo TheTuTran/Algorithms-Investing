@@ -44,7 +44,7 @@ export function FindStockFilterDataTable<TData, TValue>({ columns, data, setSele
     table.getRowModel().rows.map((row) => {
       if (cachedSelectedIds?.includes(row.id)) row.toggleSelected(!row.getIsSelected());
     });
-  });
+  }, []);
 
   return (
     <div className="space-y-4">
