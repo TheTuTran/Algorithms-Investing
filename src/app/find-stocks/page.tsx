@@ -2,7 +2,7 @@
 
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { calculateMACD, calculateRsi, calculateSma, calculateStochastic, getFormattedDates } from "@/lib/utils";
+import { calculateSma, calculateStochastic, getFormattedDates } from "@/lib/utils";
 import { snp_array } from "@/lib/data/snp_500";
 import { useChartData } from "@/hooks/useChartData";
 import { Input } from "@/components/ui/input";
@@ -28,12 +28,7 @@ const FindStocks = () => {
   const [interval, setInterval] = useState<string>("1d");
   const [progress, setProgress] = useState(0);
   const [matchingStock, setMatchingStock] = useState<{ symbol: string; security: string; industry: string; date: Date }[]>([]);
-  const [rsiValue, setRsiValue] = useState<number | null>(null);
-  const [rsiDirection, setRsiDirection] = useState<string>("above");
-  const [macdDirection, setMacdDirection] = useState<string>("above");
   const [includeSma, setIncludeSma] = useState(false);
-  const [includeRsi, setIncludeRsi] = useState(false);
-  const [includeMacd, setIncludeMacd] = useState(false);
   const [isDataReady, setIsDataReady] = useState(false);
   const [selectedRows, setSelectedRows] = useState<StockSecuritySectorFormat[]>([]);
 
@@ -72,10 +67,19 @@ const FindStocks = () => {
     }
 
     const results = [];
-    const days = interval == "1d" || interval == "5d" ? 365 : interval == "1mo" || interval == "3mo" ? (stochasticPeriod + 1) * 90 : (stochasticPeriod + 1) * 365;
-    const larger_period = Math.max(smaValue ?? 0, stochasticPeriod, days);
+    const larger_period = Math.max(smaValue ?? 0, stochasticPeriod);
+    const days =
+      interval == "1d"
+        ? larger_period + 1
+        : interval == "5d"
+        ? (larger_period + 1) * 5
+        : interval == "1mo"
+        ? (larger_period + 1) * 30
+        : interval == "3mo"
+        ? (larger_period + 1) * 90
+        : (larger_period + 1) * 365;
     const period1Date = new Date();
-    period1Date.setDate(period1Date.getDate() - larger_period);
+    period1Date.setDate(period1Date.getDate() - days);
 
     for (const ticker of selectedRows.length > 0 ? selectedRows : snp_array) {
       const symbol = ticker.Symbol;
@@ -90,10 +94,7 @@ const FindStocks = () => {
           const highs = data.map((d) => d.high);
           const lows = data.map((d) => d.low);
           const stochasticValues = calculateStochastic(closes, highs, lows, stochasticPeriod);
-
           const smaValues = includeSma ? calculateSma(closes, 14) : null;
-          const rsiValues = includeRsi ? calculateRsi(closes, 14) : null;
-          const macdValues = includeMacd ? calculateMACD(closes, 12, 26, 9) : null;
 
           if (includeSma && !smaValue) {
             toast({
@@ -105,21 +106,9 @@ const FindStocks = () => {
             return;
           }
 
-          if (includeRsi && !rsiValue) {
-            toast({
-              title: "Error",
-              description: "Include RSI is checked but no input for the RSI Level is provided",
-              variant: "destructive",
-            });
-            setLoading(false);
-            return;
-          }
-
           for (let i = closes.length; i > Math.max(smaValue ?? 0, stochasticPeriod); i--) {
             if (stochasticValues[i] !== null && stochasticValues[i - 1]) {
               const smaCondition = includeSma ? smaValues![i] !== null && (smaDirection === "above" ? closes[i] > smaValues![i]! : closes[i] < smaValues![i]!) : true;
-              const rsiCondition = includeRsi ? rsiValues![i] !== null && (rsiDirection === "above" ? rsiValues![i]! > rsiValue! : rsiValues![i]! < rsiValue!) : true;
-              const macdCondition = includeMacd ? macdValues!.macdLine[i] !== null && (macdDirection === "above" ? macdValues!.macdLine[i]! > 0 : macdValues!.macdLine[i]! < 0) : true;
 
               // main signal
               const stochasticCondition =
@@ -127,7 +116,7 @@ const FindStocks = () => {
                   ? stochasticValues[i]! > stochasticLevel && stochasticValues[i - 1]! < stochasticLevel
                   : stochasticValues[i]! < stochasticLevel && stochasticValues[i - 1]! > stochasticLevel;
 
-              if (smaCondition && stochasticCondition && rsiCondition && macdCondition) {
+              if (smaCondition && stochasticCondition) {
                 results.push({
                   symbol,
                   security,
@@ -275,64 +264,8 @@ const FindStocks = () => {
           </Select>
         </div>
       </div>
-      <div className="w-full mb-4 flex gap-6">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={includeMacd}
-            onClick={() => {
-              setIncludeMacd(!includeMacd);
-            }}
-          />
-          <span className="h-10 py-2 text-sm font-semibold pr-[54.52px]">Include MACD</span>
-          <Select disabled={loading} onValueChange={setMacdDirection}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Above" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="above">Above</SelectItem>
-              <SelectItem value="below">Below</SelectItem>
-            </SelectContent>
-          </Select>
-          <span className="h-10 py-2 px-3 text-sm font-semibold">the zero line</span>
-        </div>
-      </div>
+
       <div className="w-full mb-4 flex">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={includeRsi}
-            onClick={() => {
-              setIncludeRsi(!includeRsi);
-            }}
-          />
-          <span className="h-10 py-2 text-sm font-semibold pr-[75.39px]">Include RSI</span>
-          <Select disabled={loading} onValueChange={(value) => setRsiDirection(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Above" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="above">Above </SelectItem>
-              <SelectItem value="below">Below </SelectItem>
-            </SelectContent>
-          </Select>
-          <Input
-            disabled={loading}
-            type="text"
-            placeholder="RSI Level"
-            value={rsiValue ?? ""}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              const value = e.target.value;
-              if (value === "") {
-                setRsiValue(null);
-              } else {
-                const numValue = Number(value);
-                if (!isNaN(numValue)) {
-                  setRsiValue(numValue);
-                }
-              }
-            }}
-            className="hover:border-blue-500 max-w-[180px]"
-          />
-        </div>
         <Button onClick={() => downloadCSV(matchingStock)} disabled={!isDataReady} className="btn btn-primary ml-auto mr-6">
           Download to Excel
         </Button>
