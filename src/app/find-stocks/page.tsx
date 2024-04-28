@@ -108,11 +108,6 @@ const FindStocks = () => {
                   : stochasticValues[i]! < stochasticLevel && stochasticValues[i - 1]! > stochasticLevel;
 
               if (smaCondition && stochasticCondition && rsiCondition && macdCondition) {
-                console.log("closing", closes[i]);
-                console.log("sma", includeSma ? smaValues![i] : smaCondition);
-                console.log("rsi", includeRsi ? rsiValues![i] : rsiCondition);
-                console.log("macd", includeMacd ? macdValues!.macdLine[i]! : macdCondition);
-
                 results.push({
                   symbol,
                   security,
