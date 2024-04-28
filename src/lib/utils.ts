@@ -318,7 +318,12 @@ export function calculateStochastic(close: number[], high: number[], low: number
   }
 
   let initialNulls = new Array(period - 1).fill(null);
+
+  console.log("pre changes", [...initialNulls, ...percentK]);
+
   const three_day_stoch_sma = calculateSma([...initialNulls, ...percentK], 3);
+
+  console.log("1 smooth", three_day_stoch_sma);
   const three_day__sma_three_day_stoch_sma = calculateSma(three_day_stoch_sma, 3);
 
   return three_day__sma_three_day_stoch_sma;
