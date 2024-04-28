@@ -68,9 +68,16 @@ const FindStocks = () => {
 
     const results = [];
     const larger_period = Math.max(smaValue ?? 0, stochasticPeriod);
-    const days = interval == "1d" ? larger_period * 2 : interval == "5d" ? larger_period * 10 : interval == "1mo" ? larger_period * 60 : interval == "3mo" ? larger_period * 180 : larger_period * 730;
-
-    console.log(days);
+    const days =
+      interval == "1d"
+        ? larger_period + 1
+        : interval == "5d"
+        ? (larger_period + 1) * 5
+        : interval == "1mo"
+        ? (larger_period + 1) * 30
+        : interval == "3mo"
+        ? (larger_period + 1) * 90
+        : (larger_period + 1) * 365;
     const period1Date = new Date();
     period1Date.setDate(period1Date.getDate() - days);
 
@@ -81,14 +88,14 @@ const FindStocks = () => {
 
       try {
         const data = await fetchChartData(symbol, period1Date.toISOString().split("T")[0], formattedToday, interval);
-        console.log("data", data);
+
         if (data && data.length) {
           const closes = data.map((d) => d.close);
           const highs = data.map((d) => d.high);
           const lows = data.map((d) => d.low);
           const stochasticValues = calculateStochastic(closes, highs, lows, stochasticPeriod);
           const smaValues = includeSma ? calculateSma(closes, 14) : null;
-          console.log("2 smooth", stochasticValues);
+
           if (includeSma && !smaValue) {
             toast({
               title: "Error",
@@ -100,7 +107,6 @@ const FindStocks = () => {
           }
 
           for (let i = closes.length; i > Math.max(smaValue ?? 0, stochasticPeriod); i--) {
-            console.log("checking", stochasticValues[i]);
             if (stochasticValues[i] !== null && stochasticValues[i - 1]) {
               const smaCondition = includeSma ? smaValues![i] !== null && (smaDirection === "above" ? closes[i] > smaValues![i]! : closes[i] < smaValues![i]!) : true;
 
