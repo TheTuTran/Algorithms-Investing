@@ -48,7 +48,18 @@ const FindStocks = () => {
     let csvContent = ["Symbol", "Security", "Industry", "Date of Signal", "Date of Signal Price", "Current Price"].join(",") + "\n";
 
     data.forEach((item) => {
-      const row = [item.symbol, item.security, item.industry, new Date(item.date).toLocaleDateString(), item.buyPrice, item.curPrice].join(",");
+      const row = [
+        item.symbol,
+        item.security,
+        item.industry,
+        new Date(item.date).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        item.buyPrice,
+        item.curPrice,
+      ].join(",");
       csvContent += row + "\n";
     });
 
