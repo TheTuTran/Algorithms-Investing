@@ -40,6 +40,7 @@ export function FindStockFilterDataTable<TData, TValue>({ columns, data, setSele
 
   React.useEffect(() => {
     const cachedSelectedIds = localStorage.getItem("selectedIds");
+    console.log(cachedSelectedIds);
     table.getRowModel().rows.map((row) => {
       if (cachedSelectedIds?.includes(row.id)) row.toggleSelected(!row.getIsSelected());
     });
