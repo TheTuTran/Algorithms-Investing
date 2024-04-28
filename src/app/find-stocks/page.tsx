@@ -95,7 +95,7 @@ const FindStocks = () => {
           const highs = data.map((d) => d.high);
           const lows = data.map((d) => d.low);
           const stochasticValues = calculateStochastic(closes, highs, lows, stochasticPeriod);
-
+          console.log("stochastic  values", stochasticValues);
           const smaValues = includeSma ? calculateSma(closes, 14) : null;
 
           if (includeSma && !smaValue) {
@@ -109,6 +109,7 @@ const FindStocks = () => {
           }
 
           for (let i = Math.max(smaValue ?? 0, stochasticPeriod); i < closes.length; i++) {
+            console.log("checking", stochasticValues[i]);
             if (stochasticValues[i] !== null && stochasticValues[i - 1]) {
               const smaCondition = includeSma ? smaValues![i] !== null && (smaDirection === "above" ? closes[i] > smaValues![i]! : closes[i] < smaValues![i]!) : true;
 
