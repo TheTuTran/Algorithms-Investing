@@ -12,7 +12,7 @@ import { columns } from "./columns";
 import { toast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-
+import { saveAs } from "file-saver";
 import { StockSecuritySectorFormat } from "@/lib/types";
 import FindStockFilter from "@/components/find-stock-data-table-components/find-stock-filter";
 
@@ -34,7 +34,27 @@ const FindStocks = () => {
   const [includeSma, setIncludeSma] = useState(false);
   const [includeRsi, setIncludeRsi] = useState(false);
   const [includeMacd, setIncludeMacd] = useState(false);
+  const [isDataReady, setIsDataReady] = useState(false);
   const [selectedRows, setSelectedRows] = useState<StockSecuritySectorFormat[]>([]);
+
+  const downloadCSV = (data: any[]) => {
+    let csvContent = ["Symbol", "Security", "Industry", "Date of Signal", "Date of Signal Price", "Current Price"].join(",") + "\n";
+
+    data.forEach((item) => {
+      const row = [
+        item.symbol,
+        item.security,
+        item.industry,
+        new Date(item.date).toLocaleDateString(),
+        item.buyPrice,
+        item.curPrice,
+      ].join(",");
+      csvContent += row + "\n";
+    });
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "Matching Stock Data.csv");
+  };
 
   const handleFetch = async () => {
     setMatchingStock([]);
@@ -127,6 +147,7 @@ const FindStocks = () => {
       setProgress((prevProgress) => prevProgress + 1);
     }
 
+    setIsDataReady(true);
     setMatchingStock(results);
     setLoading(false);
   };
@@ -201,7 +222,7 @@ const FindStocks = () => {
                 }
               }
             }}
-            className="hover:border-blue-500 max-w-[163px]"
+            className="hover:border-blue-500 max-w-[180px]"
           />
         </div>
       </div>
@@ -279,7 +300,7 @@ const FindStocks = () => {
           <span className="h-10 py-2 px-3 text-sm font-semibold">the zero line</span>
         </div>
       </div>
-      <div className="w-full mb-4 flex gap-6">
+      <div className="w-full mb-4 flex">
         <div className="flex items-center gap-2">
           <Checkbox
             checked={includeRsi}
@@ -316,8 +337,11 @@ const FindStocks = () => {
             className="hover:border-blue-500 max-w-[180px]"
           />
         </div>
+        <Button onClick={() => downloadCSV(matchingStock)} disabled={!isDataReady} className="btn btn-primary ml-auto mr-6">
+          Download to Excel
+        </Button>
 
-        <Button onClick={handleFetch} disabled={loading} className="btn btn-primary self-start ml-auto">
+        <Button onClick={handleFetch} disabled={loading} className="btn btn-primary">
           Fetch
         </Button>
       </div>
