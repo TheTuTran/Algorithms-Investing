@@ -45,12 +45,15 @@ export function DataTable<TData, TValue>({ columns, data, isLoading }: DataTable
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  onClick={() => {
+                    console.log("buyPrice", row.getValue("buyPrice"));
+                    console.log("curPrice", row.getValue("curPrice"));
+                  }}
                   className={`${
                     Number(row.getValue("buyPrice")) < Number(row.getValue("curPrice"))
-                      ? "border-2 border-green-400"
+                      ? "bg-green-400/10"
                       : Number(row.getValue("buyPrice")) > Number(row.getValue("curPrice"))
-                      ? "border-2 border-red-400"
+                      ? "bg-red-400/10"
                       : "border-2"
                   }`}
                 >
