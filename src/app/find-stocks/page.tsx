@@ -35,20 +35,26 @@ const FindStocks = () => {
   const [includeRsi, setIncludeRsi] = useState(false);
   const [includeMacd, setIncludeMacd] = useState(false);
   const [isDataReady, setIsDataReady] = useState(false);
+  const [includeLiveData, setIncludeLiveData] = useState(false);
   const [selectedRows, setSelectedRows] = useState<StockSecuritySectorFormat[]>([]);
+
+  function isBeforeThreePM() {
+    const now = new Date();
+
+    const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+
+    const hours = estTime.getHours();
+
+    const isBeforeThreePM = hours < 15;
+
+    return isBeforeThreePM;
+  }
 
   const downloadCSV = (data: any[]) => {
     let csvContent = ["Symbol", "Security", "Industry", "Date of Signal", "Date of Signal Price", "Current Price"].join(",") + "\n";
 
     data.forEach((item) => {
-      const row = [
-        item.symbol,
-        item.security,
-        item.industry,
-        new Date(item.date).toLocaleDateString(),
-        item.buyPrice,
-        item.curPrice,
-      ].join(",");
+      const row = [item.symbol, item.security, item.industry, new Date(item.date).toLocaleDateString(), item.buyPrice, item.curPrice].join(",");
       csvContent += row + "\n";
     });
 
@@ -84,8 +90,11 @@ const FindStocks = () => {
 
       try {
         const data = await fetchChartData(symbol, period1Date.toISOString().split("T")[0], formattedToday, interval);
-
         if (data && data.length) {
+          const livePrice = data[data.length - 1].close;
+          if (!includeLiveData) {
+            console.log(data.pop());
+          }
           const closes = data.map((d) => d.close);
           const highs = data.map((d) => d.high);
           const lows = data.map((d) => d.low);
@@ -134,7 +143,7 @@ const FindStocks = () => {
                   industry,
                   date: data[i].date,
                   buyPrice: closes[i],
-                  curPrice: closes[closes.length - 1],
+                  curPrice: livePrice,
                 });
                 break;
               }
@@ -164,7 +173,7 @@ const FindStocks = () => {
         level with the closing price above/below the inputted sma
       </p>
       <p className="text-sm text-muted-foreground mb-4">
-        Green border indicates the stock price went up since the date of signal. Red border indicates the stock price went down since the date of signal.
+        Green background indicates the stock price went up since the date of signal. Red background indicates the stock price went down since the date of signal.
       </p>
       <div className="flex gap-4 items-center mb-4">
         <p className="text-sm text-muted-foreground">Searched through {progress} out of </p>
@@ -228,13 +237,16 @@ const FindStocks = () => {
       </div>
       <div className="w-full mb-4 flex gap-6">
         <div className="flex gap-2 items-center">
-          <Checkbox
-            checked={includeSma}
+          <div
+            className="cursor-pointer flex items-center"
             onClick={() => {
               setIncludeSma(!includeSma);
             }}
-          />
-          <span className="h-10 py-2 text-sm font-semibold pr-[8.17px]">Include Closing Price</span>
+          >
+            <Checkbox className="mr-2 -translate-y-[1px]" checked={includeSma} />
+            <span className="h-10 py-2 text-sm font-semibold pr-[8.17px]">Include Closing Price</span>
+          </div>
+
           <Select disabled={loading} onValueChange={(value) => setSmaDirection(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />
@@ -281,13 +293,15 @@ const FindStocks = () => {
       </div>
       <div className="w-full mb-4 flex gap-6">
         <div className="flex items-center gap-2">
-          <Checkbox
-            checked={includeMacd}
+          <div
+            className="flex items-center cursor-pointer"
             onClick={() => {
               setIncludeMacd(!includeMacd);
             }}
-          />
-          <span className="h-10 py-2 text-sm font-semibold pr-[54.52px]">Include MACD</span>
+          >
+            <Checkbox className="mr-2 -translate-y-[1px]" checked={includeMacd} />
+            <span className="h-10 py-2 text-sm font-semibold pr-[54.52px]">Include MACD</span>
+          </div>
           <Select disabled={loading} onValueChange={setMacdDirection}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />
@@ -299,16 +313,28 @@ const FindStocks = () => {
           </Select>
           <span className="h-10 py-2 px-3 text-sm font-semibold">the zero line</span>
         </div>
+        <div
+          className="cursor-pointer flex items-center ml-auto"
+          onClick={() => {
+            setIncludeLiveData(!includeLiveData);
+          }}
+        >
+          <Checkbox checked={includeLiveData} className="mr-2 -translate-y-[1px]" />
+          <span className="h-10 py-2 text-sm font-semibold">Include Current Day&apos;s Data (only use during trading days)</span>
+        </div>
       </div>
       <div className="w-full mb-4 flex">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={includeRsi}
+        <div className="flex gap-2">
+          <div
+            className="cursor-pointer flex items-center"
             onClick={() => {
               setIncludeRsi(!includeRsi);
             }}
-          />
-          <span className="h-10 py-2 text-sm font-semibold pr-[75.39px]">Include RSI</span>
+          >
+            <Checkbox checked={includeRsi} className="mr-2 -translate-y-[1px]" />
+            <span className="h-10 py-2 text-sm font-semibold pr-[75.39px]">Include RSI</span>
+          </div>
+
           <Select disabled={loading} onValueChange={(value) => setRsiDirection(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />
@@ -337,13 +363,15 @@ const FindStocks = () => {
             className="hover:border-blue-500 max-w-[180px]"
           />
         </div>
-        <Button onClick={() => downloadCSV(matchingStock)} disabled={!isDataReady} className="btn btn-primary ml-auto mr-6">
-          Download to Excel
-        </Button>
+        <div className="ml-auto">
+          <Button onClick={() => downloadCSV(matchingStock)} disabled={!isDataReady} className="btn btn-primary mr-6">
+            Download to Excel
+          </Button>
 
-        <Button onClick={handleFetch} disabled={loading} className="btn btn-primary">
-          Fetch
-        </Button>
+          <Button onClick={handleFetch} disabled={loading} className="btn btn-primary">
+            Fetch
+          </Button>
+        </div>
       </div>
       <div className="w-full">
         <DataTable isLoading={loading} columns={columns} data={matchingStock} />

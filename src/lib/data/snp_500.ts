@@ -310,7 +310,7 @@ export const snp_array = [
     "GICS Sector": "Health Care",
   },
   {
-    Symbol: "BRK.B",
+    Symbol: "BRK-B",
     Security: "Berkshire Hathaway",
     "GICS Sector": "Financials",
   },
@@ -390,7 +390,7 @@ export const snp_array = [
     "GICS Sector": "Financials",
   },
   {
-    Symbol: "BF.B",
+    Symbol: "BF-B",
     Security: "Brown\u2013Forman",
     "GICS Sector": "Consumer Staples",
   },

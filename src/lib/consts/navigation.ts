@@ -7,10 +7,6 @@ export const ALGORITHMS = [
     title: "EMA Crossover",
     href: "ema",
   },
-  {
-    title: "Stochastic Crossover",
-    href: "stochastic",
-  },
 ];
 
 export const EXPLORE = [

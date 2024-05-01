@@ -58,7 +58,7 @@ export const columns: ColumnDef<{
     cell: ({ row }) => {
       const buyPrice = row.getValue("buyPrice");
 
-      return <div>{Number(buyPrice).toFixed(2) as React.ReactNode}</div>;
+      return <div>{Number(buyPrice).toFixed(3) as React.ReactNode}</div>;
     },
     enableSorting: false,
     enableHiding: false,
@@ -69,7 +69,7 @@ export const columns: ColumnDef<{
     cell: ({ row }) => {
       const curPrice = row.getValue("curPrice");
 
-      return <div>{curPrice as React.ReactNode}</div>;
+      return <div>{Number(curPrice).toFixed(3) as React.ReactNode}</div>;
     },
     enableSorting: false,
     enableHiding: false,
