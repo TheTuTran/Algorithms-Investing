@@ -93,7 +93,7 @@ const FindStocks = () => {
         if (data && data.length) {
           const livePrice = data[data.length - 1].close;
           if (!includeLiveData) {
-            console.log(data.pop());
+            data.pop()
           }
           const closes = data.map((d) => d.close);
           const highs = data.map((d) => d.high);
