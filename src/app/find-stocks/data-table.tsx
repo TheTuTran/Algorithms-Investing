@@ -45,10 +45,6 @@ export function DataTable<TData, TValue>({ columns, data, isLoading }: DataTable
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  onClick={() => {
-                    console.log("buyPrice", row.getValue("buyPrice"));
-                    console.log("curPrice", row.getValue("curPrice"));
-                  }}
                   className={`${
                     Number(row.getValue("buyPrice")) < Number(row.getValue("curPrice"))
                       ? "bg-green-400/10"
