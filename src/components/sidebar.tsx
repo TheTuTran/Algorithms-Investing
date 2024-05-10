@@ -9,7 +9,7 @@ interface SidebarProps {}
 const Sidebar: FC<SidebarProps> = ({}) => {
   const pathname = usePathname();
   return (
-    <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 md:sticky md:block">
+    <aside className="min-w-[200px] fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 md:sticky md:block">
       <div className="relative overflow-hidden h-full py-6 pl-8 pr-6 lg:py-8">
         <div data-radix-scroll-area-viewport="" className="h-full w-full rounded-[inherit] ">
           <div className="min-w-full table-auto">
@@ -40,7 +40,7 @@ const Sidebar: FC<SidebarProps> = ({}) => {
                       {section.items.map((item) => (
                         <a
                           key={item.href}
-                          className={`${pathname.includes(item.href) ? "" : "text-muted-foreground"} group flex w-full items-center rounded-md border border-transparent px-2 py-1 hover:underline `}
+                          className={`${pathname.split("/")[1] === item.href ? "font-black text-primary" : "text-muted-foreground"} truncate group flex w-full items-center rounded-md border border-transparent px-2 py-1 hover:underline `}
                           href={item.href}
                         >
                           {item.title}
