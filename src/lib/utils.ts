@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import yahooFinance from "yahoo-finance2";
-import { MA_Signal, MA_AnalysisResult, StrategyType, Stoch_Signal, Stoch_AnalysisResult } from "./types";
+import { MA_Signal, MA_AnalysisResult, StrategyType, Stoch_Signal, Stoch_AnalysisResult, MACDResult } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -69,7 +69,7 @@ export function calculateRsi(data: number[], period: number) {
   let gains = 0;
   let losses = 0;
 
-  for (let i = 1; i < period; i++) {
+  for (let i = 1; i <= period; i++) {
     const difference = data[i] - data[i - 1];
     if (difference >= 0) {
       gains += difference;
@@ -80,38 +80,24 @@ export function calculateRsi(data: number[], period: number) {
 
   let averageGain = gains / period;
   let averageLoss = losses / period;
-  let relativeStrength = averageLoss === 0 ? 100 : averageGain / averageLoss;
-
+  let relativeStrength = averageLoss === 0 ? Infinity : averageGain / averageLoss;
   let rsi = 100 - 100 / (1 + relativeStrength);
 
   const rsiValues = [rsi];
 
-  for (let i = period; i < data.length; i++) {
+  for (let i = period + 1; i < data.length; i++) {
     const difference = data[i] - data[i - 1];
-    let gain = 0;
-    let loss = 0;
-
-    if (difference > 0) {
-      gain = difference;
-    } else {
-      loss = -difference;
-    }
+    let gain = difference > 0 ? difference : 0;
+    let loss = difference < 0 ? -difference : 0;
 
     averageGain = (averageGain * (period - 1) + gain) / period;
     averageLoss = (averageLoss * (period - 1) + loss) / period;
-    relativeStrength = averageLoss === 0 ? 100 : averageGain / averageLoss;
-
+    relativeStrength = averageLoss === 0 ? Infinity : averageGain / averageLoss;
     rsi = 100 - 100 / (1 + relativeStrength);
     rsiValues.push(rsi);
   }
 
   return rsiValues;
-}
-
-interface MACDResult {
-  macdLine: (number | null)[];
-  signalLine: (number | null)[];
-  histogram: (number | null)[];
 }
 
 export function calculateMACD(data: number[], shortPeriod: number, longPeriod: number, signalPeriod: number): MACDResult {

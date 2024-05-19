@@ -23,13 +23,16 @@ const FindStocks = () => {
   const [stochasticPeriod, setStochasticPeriod] = useState<number | null>(14);
   const [stochasticLevel, setStochasticLevel] = useState<number | null>(30);
   const [stochasticDirection, setStochasticDirection] = useState<string>("above");
-  const [smaValue, setSmaValue] = useState<number | null>(null);
+  const [smaValue, setSmaValue] = useState<number | null>(20);
   const [smaDirection, setSmaDirection] = useState<string>("above");
   const [interval, setInterval] = useState<string>("1d");
   const [progress, setProgress] = useState(0);
   const [matchingStock, setMatchingStock] = useState<{ symbol: string; security: string; industry: string; date: Date }[]>([]);
-  const [rsiValue, setRsiValue] = useState<number | null>(null);
+  const [rsiValue, setRsiValue] = useState<number | null>(20);
   const [rsiDirection, setRsiDirection] = useState<string>("above");
+  const [macDPeriod, setmacDPeriod] = useState<number | null>(9);
+  const [macDFastValue, setMacDFastValue] = useState<number | null>(12);
+  const [macDSlowValue, setMacDSlowValue] = useState<number | null>(26);
   const [macdDirection, setMacdDirection] = useState<string>("above");
   const [includeSma, setIncludeSma] = useState(false);
   const [includeRsi, setIncludeRsi] = useState(false);
@@ -37,18 +40,6 @@ const FindStocks = () => {
   const [isDataReady, setIsDataReady] = useState(false);
   const [includeLiveData, setIncludeLiveData] = useState(false);
   const [selectedRows, setSelectedRows] = useState<StockSecuritySectorFormat[]>([]);
-
-  function isBeforeThreePM() {
-    const now = new Date();
-
-    const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-
-    const hours = estTime.getHours();
-
-    const isBeforeThreePM = hours < 15;
-
-    return isBeforeThreePM;
-  }
 
   const downloadCSV = (data: any[]) => {
     let csvContent = ["Symbol", "Security", "Industry", "Date of Signal", "Date of Signal Price", "Current Price"].join(",") + "\n";
@@ -93,16 +84,12 @@ const FindStocks = () => {
         if (data && data.length) {
           const livePrice = data[data.length - 1].close;
           if (!includeLiveData) {
-            console.log(data.pop());
+            data.pop();
           }
           const closes = data.map((d) => d.close);
           const highs = data.map((d) => d.high);
           const lows = data.map((d) => d.low);
           const stochasticValues = calculateStochastic(closes, highs, lows, stochasticPeriod);
-
-          const smaValues = includeSma ? calculateSma(closes, 14) : null;
-          const rsiValues = includeRsi ? calculateRsi(closes, 14) : null;
-          const macdValues = includeMacd ? calculateMACD(closes, 12, 26, 9) : null;
 
           if (includeSma && !smaValue) {
             toast({
@@ -124,11 +111,29 @@ const FindStocks = () => {
             return;
           }
 
+          if (includeMacd && (!macDSlowValue || !macDFastValue || !macDPeriod)) {
+            toast({
+              title: "Error",
+              description: "Include MACD is checked but missing an input for the MACD calculation",
+              variant: "destructive",
+            });
+            setLoading(false);
+            return;
+          }
+
+          const smaValues = includeSma ? calculateSma(closes, smaValue!) : null;
+          const rsiValues = includeRsi ? calculateRsi(closes, rsiValue!) : null;
+          const macdValues = includeMacd ? calculateMACD(closes, macDFastValue!, macDSlowValue!, macDPeriod!) : null;
+
           for (let i = closes.length; i > Math.max(smaValue ?? 0, stochasticPeriod); i--) {
             if (stochasticValues[i] !== null && stochasticValues[i - 1]) {
               const smaCondition = includeSma ? smaValues![i] !== null && (smaDirection === "above" ? closes[i] > smaValues![i]! : closes[i] < smaValues![i]!) : true;
               const rsiCondition = includeRsi ? rsiValues![i] !== null && (rsiDirection === "above" ? rsiValues![i]! > rsiValue! : rsiValues![i]! < rsiValue!) : true;
-              const macdCondition = includeMacd ? macdValues!.macdLine[i] !== null && (macdDirection === "above" ? macdValues!.macdLine[i]! > 0 : macdValues!.macdLine[i]! < 0) : true;
+              const macdCondition = includeMacd
+                ? macdValues!.macdLine[i] !== null &&
+                  macdValues!.signalLine[i] !== null &&
+                  (macdDirection === "above" ? macdValues!.macdLine[i]! > macdValues!.signalLine[i]! : macdValues!.macdLine[i]! < macdValues!.signalLine[i]!)
+                : true;
 
               // main signal
               const stochasticCondition =
@@ -166,7 +171,7 @@ const FindStocks = () => {
       <h1 className="text-2xl font-bold mb-4">Find Stocks based on the following indicators</h1>
       <p className="text-sm text-muted-foreground mb-4">
         Symbol, Stock Name, and Sector is self explanatory. The date is the most recent date of the oscillator crossing above the inputted stochastic level. The stochastic oscillator is the derivative
-        of the derivative of the oscillator with a 3 day sma period for each derivative.
+        of the derivative of the oscillator with a 3 period sma for each derivative.
       </p>
       <p className="text-sm text-muted-foreground mb-4">
         If a stock appears to have matched the following indicators, then it will appear below with the date that it happened. The indicator is when the oscillator crosses above/below the stochastic
@@ -184,7 +189,7 @@ const FindStocks = () => {
 
       <div className="w-full mb-4 flex items-center gap-6">
         <div className="flex items-center gap-2">
-          <span className="h-10 py-2 text-sm font-semibold">Get signal when oscillator</span>
+          <span className="h-10 py-2 text-sm font-semibold">Get signal when stochastic</span>
           <Select disabled={loading} onValueChange={(value) => setStochasticDirection(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Crosses Above" />
@@ -300,8 +305,9 @@ const FindStocks = () => {
             }}
           >
             <Checkbox className="mr-2 -translate-y-[1px]" checked={includeMacd} />
-            <span className="h-10 py-2 text-sm font-semibold pr-[54.52px]">Include MACD</span>
+            <span className="h-10 py-2 text-sm font-semibold pr-[54.52px]">Include MACD </span>
           </div>
+
           <Select disabled={loading} onValueChange={setMacdDirection}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Above" />
@@ -311,16 +317,63 @@ const FindStocks = () => {
               <SelectItem value="below">Below</SelectItem>
             </SelectContent>
           </Select>
-          <span className="h-10 py-2 px-3 text-sm font-semibold">the zero line</span>
-        </div>
-        <div
-          className="cursor-pointer flex items-center ml-auto"
-          onClick={() => {
-            setIncludeLiveData(!includeLiveData);
-          }}
-        >
-          <Checkbox checked={includeLiveData} className="mr-2 -translate-y-[1px]" />
-          <span className="h-10 py-2 text-sm font-semibold">Include Current Day&apos;s Data (only use during trading days)</span>
+          <span className="h-10 py-2 text-sm font-semibold ">signal line with a period of </span>
+          <Input
+            disabled={loading}
+            type="text"
+            placeholder="MACD Period"
+            value={macDPeriod ?? ""}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value;
+              if (value === "") {
+                setmacDPeriod(null);
+              } else {
+                const numValue = Number(value);
+                if (!isNaN(numValue)) {
+                  setmacDPeriod(numValue);
+                }
+              }
+            }}
+            className="hover:border-blue-500 max-w-[120px]"
+          />
+          <span className="h-10 py-2 text-sm font-semibold ">, fast EMA of </span>
+          <Input
+            disabled={loading}
+            type="text"
+            placeholder="Fast EMA"
+            value={macDFastValue ?? ""}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value;
+              if (value === "") {
+                setMacDFastValue(null);
+              } else {
+                const numValue = Number(value);
+                if (!isNaN(numValue)) {
+                  setMacDFastValue(numValue);
+                }
+              }
+            }}
+            className="hover:border-blue-500 max-w-[100px]"
+          />
+          <span className="h-10 py-2 text-sm font-semibold ">, and slow EMA of </span>
+          <Input
+            disabled={loading}
+            type="text"
+            placeholder="Slow EMA"
+            value={macDSlowValue ?? ""}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value;
+              if (value === "") {
+                setMacDSlowValue(null);
+              } else {
+                const numValue = Number(value);
+                if (!isNaN(numValue)) {
+                  setMacDSlowValue(numValue);
+                }
+              }
+            }}
+            className="hover:border-blue-500 max-w-[100px]"
+          />
         </div>
       </div>
       <div className="w-full mb-4 flex">
@@ -347,7 +400,7 @@ const FindStocks = () => {
           <Input
             disabled={loading}
             type="text"
-            placeholder="RSI Level"
+            placeholder="RSI Level (e.g. 20, 30, 70, ...)"
             value={rsiValue ?? ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const value = e.target.value;
@@ -362,6 +415,15 @@ const FindStocks = () => {
             }}
             className="hover:border-blue-500 max-w-[180px]"
           />
+        </div>
+        <div
+          className="cursor-pointer flex items-center ml-auto"
+          onClick={() => {
+            setIncludeLiveData(!includeLiveData);
+          }}
+        >
+          <Checkbox checked={includeLiveData} className="mr-2 -translate-y-[1px]" />
+          <span className="h-10 py-2 text-sm font-semibold">Include Current Day&apos;s Data (only use during trading days)</span>
         </div>
         <div className="ml-auto">
           <Button onClick={() => downloadCSV(matchingStock)} disabled={!isDataReady} className="btn btn-primary mr-6">

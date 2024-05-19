@@ -112,3 +112,9 @@ export interface StockSecuritySectorFormat {
   Security: string;
   "GICS Sector": string;
 }
+
+export interface MACDResult {
+  macdLine: (number | null)[];
+  signalLine: (number | null)[];
+  histogram: (number | null)[];
+}

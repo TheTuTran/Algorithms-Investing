@@ -45,7 +45,7 @@ export const WORK_IN_PROGRESS = [
 
 export const OTHER_LINKS = [
   {
-    title: "Historical Data",
-    href: "/",
+    title: "Sector Performance",
+    href: "/sector-performance",
   },
 ];
