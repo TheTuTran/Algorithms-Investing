@@ -128,6 +128,7 @@ const FindStocks = () => {
           for (let i = closes.length; i > Math.max(smaValue ?? 0, stochasticPeriod); i--) {
             if (stochasticValues[i] !== null && stochasticValues[i - 1]) {
               const smaCondition = includeSma ? smaValues![i] !== null && (smaDirection === "above" ? closes[i] > smaValues![i]! : closes[i] < smaValues![i]!) : true;
+
               const rsiCondition = includeRsi ? rsiValues![i] !== null && (rsiDirection === "above" ? rsiValues![i]! > rsiValue! : rsiValues![i]! < rsiValue!) : true;
               const macdCondition = includeMacd
                 ? macdValues!.macdLine[i] !== null &&
@@ -142,6 +143,7 @@ const FindStocks = () => {
                   : stochasticValues[i]! < stochasticLevel && stochasticValues[i - 1]! > stochasticLevel;
 
               if (smaCondition && stochasticCondition && rsiCondition && macdCondition) {
+                if (includeSma) console.log(closes[i], smaValues![i]);
                 results.push({
                   symbol,
                   security,

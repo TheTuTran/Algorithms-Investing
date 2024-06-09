@@ -14,10 +14,6 @@ export const EXPLORE = [
     title: "Find Stocks with Indicators",
     href: "find-stocks",
   },
-  {
-    title: "Find Stocks (TESTING)",
-    href: "find-stocks-test",
-  },
 ];
 
 export const WORK_IN_PROGRESS = [
