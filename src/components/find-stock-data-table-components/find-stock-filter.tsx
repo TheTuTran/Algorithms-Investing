@@ -3,7 +3,7 @@ import { findStockColumns } from "@/components/find-stock-data-table-components/
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/table-dialog";
 import { FindStockFilterDataTable } from "@/components/find-stock-data-table-components/find-stock-data-table";
 import { Button } from "../ui/button";
-import { snp_array } from "@/lib/data/snp_500";
+import { snp_array } from "@/lib/data/nasdaq_100";
 import { StockSecuritySectorFormat } from "@/lib/types";
 
 interface FindStockFilterProps {

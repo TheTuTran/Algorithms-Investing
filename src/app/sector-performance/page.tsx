@@ -6,7 +6,7 @@ import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useChartData } from "@/hooks/useChartData";
-import { snp_array } from "@/lib/data/snp_500";
+import { snp_array } from "@/lib/data/nasdaq_100";
 import { getFormattedDates } from "@/lib/utils";
 
 // Register ChartJS elements

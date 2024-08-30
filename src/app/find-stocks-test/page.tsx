@@ -3,7 +3,7 @@
 import React, { ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { calculateMACD, calculateRsi, calculateSma, calculateStochastic, getFormattedDates } from "@/lib/utils";
-import { snp_array } from "@/lib/data/snp_500";
+import { snp_array } from "@/lib/data/nasdaq_100";
 import { useChartData } from "@/hooks/useChartData";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "./data-table";
