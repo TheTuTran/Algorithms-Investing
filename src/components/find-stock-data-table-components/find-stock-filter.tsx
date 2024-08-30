@@ -17,7 +17,7 @@ const FindStockFilter: FC<FindStockFilterProps> = ({ selectedRows, setSelectedRo
     <Dialog>
       <DialogTrigger asChild>
         <Button disabled={disabled} variant="outline">
-          {selectedRows.length > 0 ? selectedRows.length : 503} Stocks
+          {selectedRows.length > 0 ? selectedRows.length : 101} Stocks
         </Button>
       </DialogTrigger>
       <DialogContent>

@@ -49,7 +49,7 @@ const SectorPerformance = () => {
           console.error(`Error fetching data for ${symbol}: ${error}`);
         }
         setProgress((prev) => prev + 1);
-        if (progress == 503) break;
+        if (progress == 101) break;
       }
 
       const charts = Object.keys(sectorData).map((sector) => ({
@@ -77,7 +77,7 @@ const SectorPerformance = () => {
       <h1 className="text-2xl font-bold mb-4">Sector Performance (testing)</h1>
       <hr className="mb-4" />
       <div className="flex gap-4 items-center mb-4">
-        <p className="text-sm text-muted-foreground">Searched through {progress} out of 503</p>
+        <p className="text-sm text-muted-foreground">Searched through {progress} out of 101</p>
         <Select onValueChange={setTimeFrame}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder={timeFrame} />
