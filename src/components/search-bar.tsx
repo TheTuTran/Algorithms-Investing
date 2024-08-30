@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent } from "react";
 import { Input } from "./ui/input";
-import { Tickers_dict } from "@/lib/data/tickers_dict";
+import { Tickers_dict } from "@/lib/data/nasdaq_100_dict";
 
 interface SearchBarProps {
   setSymbol: (symbol: string) => void;

@@ -5,7 +5,7 @@ import { columns } from "./columns";
 import { ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useChartData } from "@/hooks/useChartData";
-import { Tickers_dict } from "@/lib/data/tickers_dict";
+import { Tickers_dict } from "@/lib/data/nasdaq_100_dict";
 import StockSearchForm from "@/components/stock-search-form";
 import { Input } from "@/components/ui/input";
 import { MA_AnalysisResult, StrategyType } from "@/lib/types";

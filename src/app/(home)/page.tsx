@@ -5,7 +5,7 @@ import { columns } from "./columns";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useChartData } from "@/hooks/useChartData";
-import { Tickers_dict } from "@/lib/data/tickers_dict";
+import { Tickers_dict } from "@/lib/data/nasdaq_100_dict";
 import StockSearchForm from "@/components/stock-search-form";
 
 export default function HomePage() {
