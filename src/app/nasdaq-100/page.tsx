@@ -128,6 +128,7 @@ const FindStocks = () => {
           for (let i = closes.length; i > Math.max(smaValue ?? 0, stochasticPeriod); i--) {
             if (stochasticValues[i] !== null && stochasticValues[i - 1]) {
               const smaCondition = includeSma ? smaValues![i] !== null && (smaDirection === "above" ? closes[i] > smaValues![i]! : closes[i] < smaValues![i]!) : true;
+
               const rsiCondition = includeRsi ? rsiValues![i] !== null && (rsiDirection === "above" ? rsiValues![i]! > rsiValue! : rsiValues![i]! < rsiValue!) : true;
               const macdCondition = includeMacd
                 ? macdValues!.macdLine[i] !== null &&
@@ -142,6 +143,7 @@ const FindStocks = () => {
                   : stochasticValues[i]! < stochasticLevel && stochasticValues[i - 1]! > stochasticLevel;
 
               if (smaCondition && stochasticCondition && rsiCondition && macdCondition) {
+                if (includeSma) console.log(closes[i], smaValues![i]);
                 results.push({
                   symbol,
                   security,
@@ -182,7 +184,7 @@ const FindStocks = () => {
       </p>
       <div className="flex gap-4 items-center mb-4">
         <p className="text-sm text-muted-foreground">Searched through {progress} out of </p>
-        <FindStockFilter disabled={loading} selectedRows={selectedRows} setSelectedRows={setSelectedRows} />
+        <FindStockFilter disabled={loading} selectedRows={selectedRows} setSelectedRows={setSelectedRows} snp_array={snp_array} />
       </div>
 
       <hr className="mb-4" />
@@ -296,7 +298,7 @@ const FindStocks = () => {
           </Select>
         </div>
       </div>
-      <div className="w-full mb-4 flex gap-6">
+      <div className="w-full mb-4 gap-6 hidden">
         <div className="flex items-center gap-2">
           <div
             className="flex items-center cursor-pointer"

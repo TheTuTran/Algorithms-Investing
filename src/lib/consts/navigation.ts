@@ -11,8 +11,12 @@ export const ALGORITHMS = [
 
 export const EXPLORE = [
   {
-    title: "Find Stocks with Indicators",
+    title: "S&P 500",
     href: "find-stocks",
+  },
+  {
+    title: "Nasdaq 100",
+    href: "nasdaq-100",
   },
 ];
 

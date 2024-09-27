@@ -30,7 +30,6 @@ const Sidebar: FC<SidebarProps> = ({}) => {
                     items: WORK_IN_PROGRESS,
                   },
                   */
-                  { header: "Other Links", items: OTHER_LINKS },
                 ].map((section) => (
                   <div className="pb-4" key={section.header}>
                     <h4 className="mb-1 rounded-md px-2 py-1 text-md font-black truncate">{section.header}</h4>

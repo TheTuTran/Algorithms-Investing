@@ -3,7 +3,7 @@
 import React, { ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { calculateMACD, calculateRsi, calculateSma, calculateStochastic, getFormattedDates } from "@/lib/utils";
-import { snp_array } from "@/lib/data/nasdaq_100";
+import { snp_array } from "@/lib/data/snp_500";
 import { useChartData } from "@/hooks/useChartData";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "./data-table";
@@ -184,7 +184,7 @@ const FindStocks = () => {
       </p>
       <div className="flex gap-4 items-center mb-4">
         <p className="text-sm text-muted-foreground">Searched through {progress} out of </p>
-        <FindStockFilter disabled={loading} selectedRows={selectedRows} setSelectedRows={setSelectedRows} />
+        <FindStockFilter disabled={loading} selectedRows={selectedRows} setSelectedRows={setSelectedRows} snp_array={snp_array} />
       </div>
 
       <hr className="mb-4" />
